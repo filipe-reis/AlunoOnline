@@ -47,6 +47,30 @@ public class Cadastro extends AppCompatActivity {
         btnRegistrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(editNome.getText().toString().isEmpty()){
+                    editNome.setError("Nome é obrigatorio");
+                    editNome.requestFocus();
+                    return;
+                }
+                if(editSobrenome.getText().toString().isEmpty()){
+                    editSobrenome.setError("Sobrenome é obrigatório");
+                    editSobrenome.requestFocus();
+                    return;
+                }
+
+                if(editEmailCad.getText().toString().isEmpty()){
+                    editEmailCad.setError("Email é obrigatório");
+                    editEmailCad.requestFocus();
+                    return;
+                }
+
+
+                if(editSenhaCad.getText().toString().isEmpty()){
+                    editSenhaCad.setError("Senha é obrigatória");
+                    editSenhaCad.requestFocus();
+                    return;
+                }
+
                 cadastrar();
             }
         });

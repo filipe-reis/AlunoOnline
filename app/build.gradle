@@ -26,11 +26,25 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
-    //Firebase
+    /**
+     * Dependencias Firebase
+     */
     compile 'com.google.firebase:firebase-core:11.8.0'
 
-    //Autenticação Firebase
+    //Autenticação
     compile 'com.google.firebase:firebase-auth:11.8.0'
+
+    //RealTime database
+    compile 'com.google.firebase:firebase-database:11.8.0'
+
+    //Storage
+    compile 'com.google.firebase:firebase-storage:11.8.0'
+
+    //Login google
+    compile 'com.google.android.gms:play-services-auth:11.8.0'
+
+    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
+
 }
 
 apply plugin: 'com.google.gms.google-services'
