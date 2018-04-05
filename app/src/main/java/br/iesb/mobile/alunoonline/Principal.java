@@ -27,7 +27,7 @@ public class Principal extends AppCompatActivity {
     public static final int REQUEST_IMAGE_CAPTURE = 9999;
 
     EditText edtNome, edtDataNasc, edtSexo;
-    Button btnGravar, btnRemover, btnFoto, btnSair;
+    Button btnGravar, btnRemover, btnFoto, btnSair, btnMap;
 
     FirebaseDatabase database;
     FirebaseAuth auth;
@@ -46,9 +46,18 @@ public class Principal extends AppCompatActivity {
         btnGravar   = findViewById(R.id.btnGravar);
         btnFoto     = findViewById(R.id.btnFoto);
         btnSair     = findViewById(R.id.btnSair);
+        btnMap      = findViewById(R.id.btnMap);
 
         database = FirebaseDatabase.getInstance();
         auth     = FirebaseAuth.getInstance(); //Saber qual o usuario logado
+
+        btnMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Principal.this, MapActivity.class);
+                startActivity(intent);
+            }
+        });
 
 
         btnGravar.setOnClickListener(new View.OnClickListener() {
