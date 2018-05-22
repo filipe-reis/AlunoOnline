@@ -53,8 +53,6 @@ public class MainActivity extends AppCompatActivity{
     //Autencicacao Firebase
     private FirebaseAuth auth;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,7 +80,6 @@ public class MainActivity extends AppCompatActivity{
         loginBtn      = findViewById(R.id.btnLogin          );
         btnGoogle     = findViewById(R.id.btnGoogle         );
         btnFacebook   = findViewById(R.id.btnFacebook       );
-
 
         esqueceuSenha.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -147,7 +144,7 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    Intent intent = new Intent(MainActivity.this, Principal.class);
+                    Intent intent = new Intent(MainActivity.this, ListaProdutos.class);
                     startActivity(intent);
                 } else {
                     Toast.makeText(MainActivity.this, "E-mail ou senha inválido!", Toast.LENGTH_LONG).show();
@@ -239,7 +236,7 @@ public class MainActivity extends AppCompatActivity{
 
     private void updateUI(FirebaseUser user){
         if(user != null){
-            Intent intent = new Intent(MainActivity.this, Principal.class);
+            Intent intent = new Intent(MainActivity.this, Perfil.class);
             startActivity(intent);
             finish();
         }

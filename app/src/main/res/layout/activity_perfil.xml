@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="br.iesb.mobile.alunoonline.Principal">
+    tools:context="br.iesb.mobile.alunoonline.Perfil">
 
     <EditText
         android:id="@+id/edtNome"

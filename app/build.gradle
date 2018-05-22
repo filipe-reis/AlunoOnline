@@ -1,11 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 27
     defaultConfig {
         applicationId "br.iesb.mobile.alunoonline"
-        minSdkVersion 19
-        targetSdkVersion 26
+        minSdkVersion 21
+        multiDexEnabled true
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -20,34 +21,40 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:26.1.0'
+    //noinspection GradleCompatible
+    implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.android.support:design:27.1.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-
+    implementation 'com.google.android.gms:play-services:11.8.0'
     /**
      * Dependencias Firebase
      */
-    compile 'com.google.firebase:firebase-core:11.8.0'
+    implementation 'com.google.firebase:firebase-core:11.8.0'
 
     //Autenticação
-    compile 'com.google.firebase:firebase-auth:11.8.0'
+    implementation 'com.google.firebase:firebase-auth:11.8.0'
 
     //RealTime database
-    compile 'com.google.firebase:firebase-database:11.8.0'
+    implementation 'com.google.firebase:firebase-database:11.8.0'
 
     //Storage
-    compile 'com.google.firebase:firebase-storage:11.8.0'
+    implementation 'com.google.firebase:firebase-storage:11.8.0'
 
     //Login google
     implementation 'com.google.android.gms:play-services-auth:11.8.0'
 
-    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
+    implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
 
     //Maps
     implementation 'com.google.android.gms:play-services-maps:11.8.0'
-}
 
+    //RecyclerView
+    implementation 'com.android.support:recyclerview-v7:27.1.0'
+    implementation 'com.android.support:gridlayout-v7:27.1.0'
+
+}
 
 apply plugin: 'com.google.gms.google-services'
