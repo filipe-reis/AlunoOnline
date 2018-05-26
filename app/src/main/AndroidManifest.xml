@@ -55,7 +55,10 @@
         <activity android:name=".Perfil" />
         <activity android:name=".MapActivity" />
         <activity android:name=".ListaProdutos" />
-        <activity android:name=".ListaCompras"></activity>
+        <activity android:name=".ListaCompras" />
+        <activity
+            android:name=".ListaListas"
+            android:theme="@style/Theme.MyTheme" />
     </application>
 
 </manifest>
