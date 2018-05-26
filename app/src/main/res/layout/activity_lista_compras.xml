@@ -58,7 +58,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <TextView
-            android:id="@+id/textNomeLista"
+            android:id="@+id/txtTotalLista"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
@@ -73,7 +73,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toEndOf="@+id/textNomeLista"
+            android:layout_toEndOf="@+id/txtTotalLista"
             android:textSize="24sp" />
 
         <Button
@@ -82,7 +82,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_marginEnd="71dp"
+            android:layout_marginEnd="33dp"
             android:text="Criar" />
 
 
