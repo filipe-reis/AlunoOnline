@@ -30,13 +30,14 @@ public class ListaCompras extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference listaCompraReference;
     String nome_lista;
-    private Button   btnCriaLista, btnOrdenar;
+    private Button   btnCriaLista, btnOrdenar, btnOrdenarPreco;
     private TextView txtPrecoTotalLista;
-    private double precoTotalLista = 0.0;
+
+    public double precoTotalLista = 0.0;
     UtlListeCompre utlListeCompre;
 
-    public List<Double> listaComprasPreco = new ArrayList<>();
     public List<Produtos> listaCompras = new ArrayList<>();
+    Produtos[] vetorCompras;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,15 +45,15 @@ public class ListaCompras extends AppCompatActivity {
         setContentView(R.layout.activity_lista_compras);
 
         utlListeCompre = new UtlListeCompre();
-        btnCriaLista = findViewById(R.id.btnCriarLista);
-        btnOrdenar = findViewById(R.id.btnOrdenar);
-        txtPrecoTotalLista = findViewById(R.id.txtPrecoTotaLista);
+        btnCriaLista       = findViewById( R.id.btnCriarLista    );
+        btnOrdenar         = findViewById( R.id.btnOrdenar       );
+        btnOrdenarPreco    = findViewById( R.id.btnOrdenarPreco  );
+        txtPrecoTotalLista = findViewById( R.id.txtPrecoTotaLista);
 
         Intent it = getIntent();
         nome_lista = it.getStringExtra("nome");
 
         configuraRecyclerView(listaCompras);
-
         getListaCompras();
 
         btnCriaLista.setOnClickListener(new View.OnClickListener() {
@@ -65,12 +66,23 @@ public class ListaCompras extends AppCompatActivity {
         btnOrdenar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                listaComprasPreco = (List<Double>) utlListeCompre.ordenarLista((Produtos []) listaCompras.toArray(), 0, listaCompras.size() - 1);
+                vetorCompras = new Produtos[listaCompras.size()];
+                vetorCompras = listaCompras.toArray(vetorCompras);
+                listaCompras = (List<Produtos>) utlListeCompre.ordenarListaNome(vetorCompras, 0, listaCompras.size() - 1);
+                configuraRecyclerView(listaCompras);
+            }
+        });
+
+        btnOrdenarPreco.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                vetorCompras = new Produtos[listaCompras.size()];
+                vetorCompras = listaCompras.toArray(vetorCompras);
+                listaCompras = (List<Produtos>) utlListeCompre.ordenarListaPreco(vetorCompras, 0, listaCompras.size() - 1);
+                configuraRecyclerView(listaCompras);
             }
         });
     }
-
-
 
     private void configuraRecyclerView(List<Produtos> listaRV){
         recyclerViewAdapter = new CompraAdapter(ListaCompras.this, listaRV);
@@ -139,7 +151,4 @@ public class ListaCompras extends AppCompatActivity {
 
         txtPrecoTotalLista.setText(String.valueOf(precoTotalLista));
     }
-
-
-
 }

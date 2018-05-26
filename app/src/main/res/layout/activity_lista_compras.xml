@@ -87,11 +87,20 @@
 
         <Button
             android:id="@+id/btnOrdenar"
-            android:layout_width="52dp"
+            android:layout_width="wrap_content"
             android:layout_height="37dp"
             android:layout_marginEnd="-70dp"
             android:layout_toStartOf="@+id/txtTotalLista"
-            android:text="Ord" />
+            android:text="OrdN" />
+
+        <Button
+            android:id="@+id/btnOrdenarPreco"
+            android:layout_width="wrap_content"
+            android:layout_height="37dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="-70dp"
+            android:layout_toStartOf="@+id/txtTotalLista"
+            android:text="OrdP" />
 
 
     </RelativeLayout>
