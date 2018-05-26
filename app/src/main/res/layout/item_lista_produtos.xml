@@ -25,7 +25,7 @@
 
     <TextView
         android:id="@+id/nome_produto"
-        android:layout_width="wrap_content"
+        android:layout_width="225dp"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/imagemProduto"
         android:layout_toEndOf="@+id/imagemProduto"
@@ -41,9 +41,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="25dp"
-        android:layout_toStartOf="@+id/imageButton5"
-        android:text="Preco"
+        android:layout_toEndOf="@+id/nome_produto"
+        android:text="R$"
         android:textColor="#47525E"
         android:textSize="20sp"
         android:typeface="sans"
@@ -53,14 +52,15 @@
         app:layout_constraintStart_toEndOf="@+id/nome_produto"
         tools:ignore="MissingConstraints" />
 
-    <ImageButton
-        android:id="@+id/imageButton5"
-        android:layout_width="30dp"
-        android:layout_height="20dp"
-        android:layout_alignParentEnd="true"
+    <TextView
+        android:id="@+id/preco"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="16dp"
-        app:srcCompat="@drawable/three_dots" />
+        android:layout_toEndOf="@+id/preco_produto"
+        android:textColor="#47525E"
+        android:textSize="20sp"
+        app:layout_constraintStart_toEndOf="@+id/preco_produto" />
 
 
 </RelativeLayout>
