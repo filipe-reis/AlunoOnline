@@ -9,7 +9,7 @@ import com.google.firebase.database.DatabaseReference;
 public class Produtos {
 
     private String produto, desc, marca;
-    private String preco;
+    private double preco;
 
 
     public String getMarca() {
@@ -26,11 +26,11 @@ public class Produtos {
 
     public void setNome(String nome) { this.produto = nome; }
 
-    public String getPreco() {
+    public double getPreco() {
         return preco;
     }
 
-    public void setPreco(String preco) {
+    public void setPreco(double preco) {
         this.preco = preco;
     }
 

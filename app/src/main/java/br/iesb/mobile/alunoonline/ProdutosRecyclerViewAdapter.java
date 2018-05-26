@@ -24,16 +24,18 @@ public class ProdutosRecyclerViewAdapter extends RecyclerView.Adapter<ProdutosRe
     private List<Produtos> listaProdutos;
     private ProdutoRecyclerClickListener produtoRecyclerClickListener;
     FirebaseDatabase database;
-    int countItem = 1;
+    String nome_lista;
+    int contItem = 1;
 
     /**
      * Inner class View Holder
      * Maps the elements of the list
      */
 
-    public ProdutosRecyclerViewAdapter(Context context, List<Produtos> listaProdutos) {
+    public ProdutosRecyclerViewAdapter(Context context, List<Produtos> listaProdutos, String nome_lista) {
         this.context = context;
         this.listaProdutos = listaProdutos;
+        this.nome_lista = nome_lista;
     }
 
 
@@ -49,7 +51,7 @@ public class ProdutosRecyclerViewAdapter extends RecyclerView.Adapter<ProdutosRe
         Produtos produtos = listaProdutos.get(position);
 
         holder.nome.setText(produtos.getNome());
-        holder.preco.setText("R$"+ String.valueOf(produtos.getPreco()));
+        holder.preco.setText(String.valueOf(produtos.getPreco()));
 
         holder.produto = produtos;
     }
@@ -74,14 +76,11 @@ public class ProdutosRecyclerViewAdapter extends RecyclerView.Adapter<ProdutosRe
         public ProdutoViewHolder(View itemView) {
             super(itemView);
             nome = itemView.findViewById(R.id.nome_produto);
-            preco = itemView.findViewById(R.id.preco_produto);
-            itemView.setOnClickListener(this);
+            preco = itemView.findViewById(R.id.preco);
 
             RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) itemView.getLayoutParams();
-            params.setMargins(0, 0, 0, 0);
+            params.setMargins(20, 0, 0, 0);
             itemView.setLayoutParams(params);
-
-
 
             itemView.setOnClickListener(this);
         }
@@ -91,18 +90,20 @@ public class ProdutosRecyclerViewAdapter extends RecyclerView.Adapter<ProdutosRe
             if(produtoRecyclerClickListener != null){
 
                 database = FirebaseDatabase.getInstance();
-                DatabaseReference compra = database.getReference("/Compra");
+                DatabaseReference compra = database.getReference("/Compras");
 
                 //Pegar e criar um no pra ele
                 //Setar o nome da lista na child
-                compra.child(String.valueOf(countItem)).child("Produto")  .setValue(produto.getNome ().toString());
-                compra.child(String.valueOf(countItem)).child("Preco")    .setValue(produto.getPreco().toString());
-                compra.child(String.valueOf(countItem)).child("Marca")    .setValue(produto.getMarca().toString());
-                compra.child(String.valueOf(countItem)).child("Descricao").setValue(produto.getDesc ().toString());
+                compra.child(nome_lista).child(String.valueOf(contItem)).child("Produto")  .setValue(produto.getNome ().toString());
+                compra.child(nome_lista).child(String.valueOf(contItem)).child("Preco")    .setValue(String.valueOf(produto.getPreco()));
+                compra.child(nome_lista).child(String.valueOf(contItem)).child("Marca")    .setValue(produto.getMarca().toString());
+                compra.child(nome_lista).child(String.valueOf(contItem)).child("Descricao").setValue(produto.getDesc ().toString());
 
-                countItem++;
+                contItem++;
+
                 //Iniciando Activity da lista de Compras
                 Intent it = new Intent(v.getContext(), ListaCompras.class);
+                it.putExtra("nome", nome_lista);
                 context.startActivity(it);
 
             }
