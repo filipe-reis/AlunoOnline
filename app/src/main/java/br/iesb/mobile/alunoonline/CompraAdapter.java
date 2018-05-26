@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class CompraAdapter extends RecyclerView.Adapter<CompraAdapter.ProdutoViewHolder> {
+public class CompraAdapter extends RecyclerView.Adapter<CompraAdapter.CompraViewHolder> {
 
     private Context context;
     private List<Produtos> listaCompras;
@@ -23,17 +23,17 @@ public class CompraAdapter extends RecyclerView.Adapter<CompraAdapter.ProdutoVie
 
     @NonNull
     @Override
-    public CompraAdapter.ProdutoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CompraAdapter.CompraViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_lista_produtos, parent, false);
-        return new CompraAdapter.ProdutoViewHolder(view);
+        return new CompraAdapter.CompraViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ProdutoViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CompraViewHolder holder, int position) {
         Produtos produtos = listaCompras.get(position);
 
         holder.nome.setText(produtos.getNome());
-        holder.preco.setText("R$"+ String.valueOf(produtos.getPreco()));
+        holder.preco.setText(String.valueOf(produtos.getPreco()));
 
         holder.produto = produtos;
     }
@@ -47,22 +47,20 @@ public class CompraAdapter extends RecyclerView.Adapter<CompraAdapter.ProdutoVie
         notifyItemInserted(position);
     }
 
-    public class ProdutoViewHolder extends RecyclerView.ViewHolder{
+    public class CompraViewHolder extends RecyclerView.ViewHolder{
 
         public TextView nome, preco;
         public Produtos produto;
 
-        public ProdutoViewHolder(View itemView) {
+        public CompraViewHolder(View itemView) {
             super(itemView);
             nome = itemView.findViewById(R.id.nome_produto);
-            preco = itemView.findViewById(R.id.preco_produto);
+            preco = itemView.findViewById(R.id.preco);
 
             RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) itemView.getLayoutParams();
-            params.setMargins(0, 0, 0, 0);
+            params.setMargins(20, 0, 0, 0);
             itemView.setLayoutParams(params);
 
         }
-
-
     }
 }
