@@ -31,15 +31,6 @@ public class ListaCompras extends AppCompatActivity {
     String nome_lista;
     private Button   btnCriaLista ;
     private TextView txtPrecoTotalLista;
-
-/*    public double getPrecoTotalLista() {
-        return precoTotalLista;
-    }
-
-    public void setPrecoTotalLista(Double precoTotalLista) {
-        this.precoTotalLista = precoTotalLista;
-    }*/
-
     private double precoTotalLista = 0.0;
 
     public List<Produtos> listaCompras = new ArrayList<>();

@@ -28,7 +28,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListaListas extends AppCompatActivity {
+public class ListaListas extends AppCompatActivity implements ProdutoRecyclerClickListener{
 
     RecyclerView recyclerView;
     ListaAdapter recyclerViewAdapter;
@@ -67,6 +67,7 @@ public class ListaListas extends AppCompatActivity {
 
         recyclerViewAdapter = new ListaAdapter(ListaListas.this, listas);
         recyclerView = findViewById(R.id.ListasRecyclerView);
+        recyclerViewAdapter.setRecyclerViewOnclickListener(this);
         recyclerView.setAdapter(recyclerViewAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -124,7 +125,8 @@ public class ListaListas extends AppCompatActivity {
 
             }
         });
-
-
     }
+
+    @Override
+    public void onClickListener(View v, int position) {}
 }
