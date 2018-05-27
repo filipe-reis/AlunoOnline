@@ -59,6 +59,10 @@
         <activity
             android:name=".ListaListas"
             android:theme="@style/Theme.MyTheme" />
+        <activity
+            android:name=".TelaInicial"
+            android:label="@string/title_activity_tela_inicial"
+            android:theme="@style/Theme.MyTheme"></activity>
     </application>
 
 </manifest>

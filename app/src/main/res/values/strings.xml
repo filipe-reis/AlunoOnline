@@ -95,4 +95,11 @@
     </string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_lista_listas">ListaListas</string>
+    <string name="title_activity_princial_teste">PrincialTeste</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="title_activity_tela_inicial">Listas de Compras</string>
 </resources>

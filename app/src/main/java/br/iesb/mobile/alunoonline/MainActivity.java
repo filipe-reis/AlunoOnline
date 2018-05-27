@@ -39,7 +39,7 @@ import java.util.Arrays;
 public class MainActivity extends AppCompatActivity{
 
     private TextView esqueceuSenha, cadastro;
-    private Button loginBtn;
+    private Button loginBtn, btnTeste;
     private ImageButton btnGoogle, btnFacebook;
 
     private GoogleApiClient       mGoogleApiClient          ;
@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity{
         esqueceuSenha = findViewById(R.id.textEsqueceuSenha );
         cadastro      = findViewById(R.id.textCadastro      );
         loginBtn      = findViewById(R.id.btnLogin          );
+        btnTeste      = findViewById(R.id.btnTeste          );
         btnGoogle     = findViewById(R.id.btnGoogle         );
         btnFacebook   = findViewById(R.id.btnFacebook       );
 
@@ -117,6 +118,14 @@ public class MainActivity extends AppCompatActivity{
                 signInProvider("facebook");
             }
         });
+
+        btnTeste.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent(MainActivity.this, TelaInicial.class);
+                startActivity(it);
+            }
+        });
     }
 
     /**
@@ -144,7 +153,7 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    Intent intent = new Intent(MainActivity.this, ListaListas.class);
+                    Intent intent = new Intent(MainActivity.this, TelaInicial.class);
                     startActivity(intent);
                 } else {
                     Toast.makeText(MainActivity.this, "E-mail ou senha inválido!", Toast.LENGTH_LONG).show();
@@ -236,7 +245,7 @@ public class MainActivity extends AppCompatActivity{
 
     private void updateUI(FirebaseUser user){
         if(user != null){
-            Intent intent = new Intent(MainActivity.this, Perfil.class);
+            Intent intent = new Intent(MainActivity.this, TelaInicial.class);
             startActivity(intent);
             finish();
         }
