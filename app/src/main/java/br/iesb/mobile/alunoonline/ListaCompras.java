@@ -21,6 +21,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ListaCompras extends AppCompatActivity {
@@ -29,32 +30,30 @@ public class ListaCompras extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference listaCompraReference;
     String nome_lista;
-    private Button   btnCriaLista ;
+    private Button   btnCriaLista, btnOrdenar, btnOrdenarPreco;
     private TextView txtPrecoTotalLista;
-    private double precoTotalLista = 0.0;
+
+    public double precoTotalLista = 0.0;
+    UtlListeCompre utlListeCompre;
 
     public List<Produtos> listaCompras = new ArrayList<>();
+    Produtos[] vetorCompras;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lista_compras);
 
-        btnCriaLista = findViewById(R.id.btnCriarLista);
-        txtPrecoTotalLista = findViewById(R.id.txtPrecoTotaLista);
+        utlListeCompre = new UtlListeCompre();
+        btnCriaLista       = findViewById( R.id.btnCriarLista    );
+        btnOrdenar         = findViewById( R.id.btnOrdenar       );
+        btnOrdenarPreco    = findViewById( R.id.btnOrdenarPreco  );
+        txtPrecoTotalLista = findViewById( R.id.txtPrecoTotaLista);
 
         Intent it = getIntent();
         nome_lista = it.getStringExtra("nome");
 
-        recyclerViewAdapter = new CompraAdapter(ListaCompras.this, listaCompras);
-        recyclerView = findViewById(R.id.ListaComprasRecyclerView);
-        recyclerView.setAdapter(recyclerViewAdapter);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        //Divide os itens da lista
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-
+        configuraRecyclerView(listaCompras);
         getListaCompras();
 
         btnCriaLista.setOnClickListener(new View.OnClickListener() {
@@ -63,6 +62,37 @@ public class ListaCompras extends AppCompatActivity {
                 //persistirListaUID();
             }
         });
+
+        btnOrdenar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                vetorCompras = new Produtos[listaCompras.size()];
+                vetorCompras = listaCompras.toArray(vetorCompras);
+                listaCompras = (List<Produtos>) utlListeCompre.ordenarListaNome(vetorCompras, 0, listaCompras.size() - 1);
+                configuraRecyclerView(listaCompras);
+            }
+        });
+
+        btnOrdenarPreco.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                vetorCompras = new Produtos[listaCompras.size()];
+                vetorCompras = listaCompras.toArray(vetorCompras);
+                listaCompras = (List<Produtos>) utlListeCompre.ordenarListaPreco(vetorCompras, 0, listaCompras.size() - 1);
+                configuraRecyclerView(listaCompras);
+            }
+        });
+    }
+
+    private void configuraRecyclerView(List<Produtos> listaRV){
+        recyclerViewAdapter = new CompraAdapter(ListaCompras.this, listaRV);
+        recyclerView = findViewById(R.id.ListaComprasRecyclerView);
+        recyclerView.setAdapter(recyclerViewAdapter);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        //Divide os itens da lista
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
 
     private void getListaCompras() {
@@ -121,7 +151,4 @@ public class ListaCompras extends AppCompatActivity {
 
         txtPrecoTotalLista.setText(String.valueOf(precoTotalLista));
     }
-
-
-
 }
