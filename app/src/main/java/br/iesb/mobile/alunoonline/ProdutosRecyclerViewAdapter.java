@@ -27,10 +27,6 @@ public class ProdutosRecyclerViewAdapter extends RecyclerView.Adapter<ProdutosRe
     String nome_lista;
     int contItem = 1;
 
-    /**
-     * Inner class View Holder
-     * Maps the elements of the list
-     */
 
     public ProdutosRecyclerViewAdapter(Context context, List<Produtos> listaProdutos, String nome_lista) {
         this.context = context;
@@ -67,6 +63,11 @@ public class ProdutosRecyclerViewAdapter extends RecyclerView.Adapter<ProdutosRe
         notifyItemInserted(position);
     }
 
+
+    /**
+     * Inner class View Holder
+     * Maps the elements of the list
+     */
 
     public class ProdutoViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
