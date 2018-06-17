@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import br.iesb.mobile.alunoonline.Model.ListadasListas;
+
 public class ListaAdapter extends RecyclerView.Adapter<ListaAdapter.ListaViewHolder>{
     private Context context;
     private List<String> lista;

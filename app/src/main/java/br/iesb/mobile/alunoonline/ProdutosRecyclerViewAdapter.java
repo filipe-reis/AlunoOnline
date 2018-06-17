@@ -2,7 +2,6 @@ package br.iesb.mobile.alunoonline;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +12,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
+
+import br.iesb.mobile.alunoonline.Model.Produtos;
 
 /**
  * Created by Filipe Reis on 29/04/2018.

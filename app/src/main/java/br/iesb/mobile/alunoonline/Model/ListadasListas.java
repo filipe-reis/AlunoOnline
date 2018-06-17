@@ -1,4 +1,4 @@
-package br.iesb.mobile.alunoonline;
+package br.iesb.mobile.alunoonline.Model;
 
 public class ListadasListas {
 

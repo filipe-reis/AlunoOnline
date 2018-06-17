@@ -1,7 +1,8 @@
 package br.iesb.mobile.alunoonline;
 
 import java.util.Arrays;
-import java.util.List;
+
+import br.iesb.mobile.alunoonline.Model.Produtos;
 
 public class UtlListeCompre {
 

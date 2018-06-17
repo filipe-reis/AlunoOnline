@@ -1,6 +1,11 @@
 package br.iesb.mobile.alunoonline;
 
 import android.content.Intent;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -13,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.support.v7.widget.Toolbar;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -24,131 +30,51 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ListaCompras extends AppCompatActivity {
-    private CompraAdapter recyclerViewAdapter;
-    private RecyclerView recyclerView;
-    private FirebaseDatabase database;
-    private DatabaseReference listaCompraReference;
-    String nome_lista;
-    private Button   btnCriaLista, btnOrdenar, btnOrdenarPreco;
-    private TextView txtPrecoTotalLista;
+import br.iesb.mobile.alunoonline.fragments.FragmentAdapter;
+import br.iesb.mobile.alunoonline.fragments.FragmentListaCompras;
+import br.iesb.mobile.alunoonline.fragments.FragmentListaMercados;
+import br.iesb.mobile.alunoonline.fragments.PassadorDeInformacao;
 
-    public double precoTotalLista = 0.0;
-    UtlListeCompre utlListeCompre;
+public class ListaCompras extends FragmentActivity{
 
-    public List<Produtos> listaCompras = new ArrayList<>();
-    Produtos[] vetorCompras;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+    private String    nome_lista;
+    private FragmentAdapter fragmentAdapter;
+    private Fragment fragmentListaCompras;
+    private Fragment fragmentListaMercados;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_lista_compras);
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_lista_compras);
 
-        utlListeCompre = new UtlListeCompre();
-        btnCriaLista       = findViewById( R.id.btnCriarLista    );
-        btnOrdenar         = findViewById( R.id.btnOrdenar       );
-        btnOrdenarPreco    = findViewById( R.id.btnOrdenarPreco  );
-        txtPrecoTotalLista = findViewById( R.id.txtPrecoTotaLista);
+            tabLayout = findViewById(R.id.tabLayout);
+            viewPager = findViewById(R.id.view_pager);
+            Toolbar toolbar = findViewById(R.id.my_awesome_toolbar);
 
-        Intent it = getIntent();
-        nome_lista = it.getStringExtra("nome");
 
-        configuraRecyclerView(listaCompras);
-        getListaCompras();
+            fragmentAdapter = new FragmentAdapter(getSupportFragmentManager(), getResources().getStringArray(R.array.titulo_tabs_lista_compras));
+            viewPager.setAdapter(fragmentAdapter);
+            tabLayout.setupWithViewPager(viewPager);
 
-        btnCriaLista.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //persistirListaUID();
-            }
-        });
+            //fragmentListaCompras = new FragmentListaCompras();
+            fragmentListaMercados = new FragmentListaMercados();
 
-        btnOrdenar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                vetorCompras = new Produtos[listaCompras.size()];
-                vetorCompras = listaCompras.toArray(vetorCompras);
-                listaCompras = (List<Produtos>) utlListeCompre.ordenarListaNome(vetorCompras, 0, listaCompras.size() - 1);
-                configuraRecyclerView(listaCompras);
-            }
-        });
+            Intent it = getIntent();
+            nome_lista = it.getStringExtra("nome");
+            this.enviaMensagemParaOFragment(nome_lista, new FragmentListaCompras());
 
-        btnOrdenarPreco.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                vetorCompras = new Produtos[listaCompras.size()];
-                vetorCompras = listaCompras.toArray(vetorCompras);
-                listaCompras = (List<Produtos>) utlListeCompre.ordenarListaPreco(vetorCompras, 0, listaCompras.size() - 1);
-                configuraRecyclerView(listaCompras);
-            }
-        });
-    }
-
-    private void configuraRecyclerView(List<Produtos> listaRV){
-        recyclerViewAdapter = new CompraAdapter(ListaCompras.this, listaRV);
-        recyclerView = findViewById(R.id.ListaComprasRecyclerView);
-        recyclerView.setAdapter(recyclerViewAdapter);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        //Divide os itens da lista
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-    }
-
-    private void getListaCompras() {
-    //Recuperar do banco de dados
-        try{
-            database = FirebaseDatabase.getInstance();
-            listaCompraReference = database.getReference().child("/Compras/" + nome_lista);
-        }catch(Exception e){
-            System.out.print("ERRO - " + e.getMessage());
-        }
-
-        listaCompraReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                for(DataSnapshot c : dataSnapshot.getChildren()){
-                    Produtos produto = new Produtos();
-                    try{
-                        produto.setDesc( c.child("Descricao").getValue().toString());
-                        produto.setNome( c.child("Produto")  .getValue().toString());
-                        produto.setMarca(c.child("Marca")    .getValue().toString());
-                        produto.setPreco(Double.parseDouble(c.child("Preco")
-                                .getValue().toString().replace(',', '.')));
-
-                    }catch(Exception e){
-                        System.out.println("ERRO Recuperando produto: " + e.getMessage());
-                        e.printStackTrace();
-                    }
-
-                    if(c.hasChild("Produto")){
-                        listaCompras.add(produto);
-                        calculaPrecoTotalLista(produto.getPreco());
-                    }
-                }
-                recyclerViewAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(ListaCompras.this, "Não foi possível recuperar os dados do banco de dados", Toast.LENGTH_LONG).show();
-                Log.e("ERRO - Lista de Compras", databaseError.getMessage());
-
-            }
-        });
 
     }
 
-    /**
-     * Incremento do preco do novo produto inserido
-     * E seta na tela
-     * @param precoProdAtual
-     */
-    public void calculaPrecoTotalLista(double precoProdAtual){
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
 
-        precoTotalLista += precoProdAtual;
+    }
 
-        txtPrecoTotalLista.setText(String.valueOf(precoTotalLista));
+    public void enviaMensagemParaOFragment(String nome, PassadorDeInformacao fragment) {
+        fragment.passaInformacao(nome);
     }
 }
