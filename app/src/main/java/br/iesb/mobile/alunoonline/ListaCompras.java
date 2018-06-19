@@ -13,6 +13,9 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -35,7 +38,7 @@ import br.iesb.mobile.alunoonline.fragments.FragmentListaCompras;
 import br.iesb.mobile.alunoonline.fragments.FragmentListaMercados;
 import br.iesb.mobile.alunoonline.fragments.PassadorDeInformacao;
 
-public class ListaCompras extends FragmentActivity{
+public class ListaCompras extends AppCompatActivity{
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -43,7 +46,7 @@ public class ListaCompras extends FragmentActivity{
     private FragmentAdapter fragmentAdapter;
     private Fragment fragmentListaCompras;
     private Fragment fragmentListaMercados;
-
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,27 +55,48 @@ public class ListaCompras extends FragmentActivity{
 
             tabLayout = findViewById(R.id.tabLayout);
             viewPager = findViewById(R.id.view_pager);
-            Toolbar toolbar = findViewById(R.id.my_awesome_toolbar);
+            toolbar = findViewById(R.id.my_awesome_toolbar);
+            setSupportActionBar(toolbar);
 
 
             fragmentAdapter = new FragmentAdapter(getSupportFragmentManager(), getResources().getStringArray(R.array.titulo_tabs_lista_compras));
             viewPager.setAdapter(fragmentAdapter);
             tabLayout.setupWithViewPager(viewPager);
 
-            //fragmentListaCompras = new FragmentListaCompras();
+            fragmentListaCompras = new FragmentListaCompras();
             fragmentListaMercados = new FragmentListaMercados();
 
             Intent it = getIntent();
             nome_lista = it.getStringExtra("nome");
-            this.enviaMensagemParaOFragment(nome_lista, new FragmentListaCompras());
-
-
     }
 
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
 
     }
+
+    /***************** Icones Tool Bar ********************/
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.tab_lista_compra, menu);
+        return true;
+    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        int res_id = item.getItemId();
+//        if(res_id == R.id.icon_more_info_compra){
+//            Toast.makeText(getApplicationContext(), "Icon de busca", Toast.LENGTH_SHORT).show();
+//        }else if (res_id == R.id.icon_sort_compra){
+//            Toast.makeText(getApplicationContext(), "Icon de Ordenação Activity", Toast.LENGTH_SHORT).show();
+//            fragmentListaCompras.
+//        }else{
+//            Toast.makeText(getApplicationContext(), "Icone nao mapeado aqui", Toast.LENGTH_SHORT).show();
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
+
 
     public void enviaMensagemParaOFragment(String nome, PassadorDeInformacao fragment) {
         fragment.passaInformacao(nome);

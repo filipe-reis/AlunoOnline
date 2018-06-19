@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ListaCompras">
+
+
+    <item
+        android:id="@+id/icon_sort_compra"
+        android:title="Sort"
+        android:icon="@drawable/ic_action_sort"
+        app:showAsAction="ifRoom"
+        android:orderInCategory="100">
+    </item>
+
+
+    <item
+        android:id="@+id/icon_more_info_compra"
+        android:title="More Info"
+        android:icon="@drawable/ic_action_more_info"
+        app:showAsAction="ifRoom"
+        android:orderInCategory="200">
+    </item>
+</menu>

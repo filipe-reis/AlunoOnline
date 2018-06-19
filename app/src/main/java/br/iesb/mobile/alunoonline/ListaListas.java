@@ -13,6 +13,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -38,12 +41,13 @@ public class ListaListas extends AppCompatActivity implements ProdutoRecyclerCli
     private EditText nome_lista_dialog;
 
     public List<String> listas = new ArrayList<>();
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lista_listas);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbarListas);
         setSupportActionBar(toolbar);
 
         comprasRef = database.getReference().child("/Compras");
@@ -125,6 +129,27 @@ public class ListaListas extends AppCompatActivity implements ProdutoRecyclerCli
 
             }
         });
+    }
+
+    /***************** Icones Tool Bar ********************/
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.tab_lista_listas, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int res_id = item.getItemId();
+        if(res_id == R.id.icon_more_info_lista){
+            Toast.makeText(getApplicationContext(), "Icon de Info", Toast.LENGTH_SHORT).show();
+        }else if (res_id == R.id.icon_sort_lista){
+            Toast.makeText(getApplicationContext(), "Icon de Ordenação", Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(getApplicationContext(), "Icone nao mapeado aqui", Toast.LENGTH_SHORT).show();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

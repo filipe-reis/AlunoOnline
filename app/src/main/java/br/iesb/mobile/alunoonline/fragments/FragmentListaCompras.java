@@ -4,12 +4,16 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -30,13 +34,13 @@ import br.iesb.mobile.alunoonline.Model.Produtos;
 import br.iesb.mobile.alunoonline.R;
 import br.iesb.mobile.alunoonline.UtlListeCompre;
 
-public class FragmentListaCompras extends Fragment implements View.OnClickListener, PassadorDeInformacao{
+public class FragmentListaCompras extends Fragment implements View.OnClickListener{
     private CompraAdapter recyclerViewAdapter;
     private RecyclerView recyclerView;
     private FirebaseDatabase database;
     private DatabaseReference listaCompraReference;
     String nome_lista;
-    private Button btnCriaLista, btnOrdenar, btnOrdenarPreco;
+    private Button btnCriaLista;
     private TextView txtPrecoTotalLista;
 
     public double precoTotalLista = 0.0;
@@ -46,6 +50,13 @@ public class FragmentListaCompras extends Fragment implements View.OnClickListen
     Produtos[] vetorCompras;
 
     public FragmentListaCompras(){}
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -70,20 +81,10 @@ public class FragmentListaCompras extends Fragment implements View.OnClickListen
         getListaCompras();
 
         utlListeCompre     = new UtlListeCompre();
-
         btnCriaLista       = view.findViewById(R.id.btnCriarLista);
-        btnOrdenar         = view.findViewById(R.id.btnOrdenar);
-        btnOrdenarPreco    = view.findViewById(R.id.btnOrdenarPreco);
         txtPrecoTotalLista = view.findViewById(R.id.txtPrecoTotaLista);
 
-
-
-        //configuraRecyclerView(listaCompras, view);
-
-
         btnCriaLista.setOnClickListener(this);
-        btnOrdenar.setOnClickListener(this);
-        btnOrdenarPreco.setOnClickListener(this);
     }
 
     private void configuraRecyclerView(List<Produtos> listaRV, View view){
@@ -152,36 +153,14 @@ public class FragmentListaCompras extends Fragment implements View.OnClickListen
 
         precoTotalLista += precoProdAtual;
 
-        txtPrecoTotalLista.setText(String.valueOf(precoTotalLista));
+        precoTotalLista = Math.ceil(precoTotalLista);
+        txtPrecoTotalLista.setText(String.valueOf(precoTotalLista).replace('.', ','));
     }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.btnCriarLista:
-                //persistirListaUID();
-                break;
-            case R.id.btnOrdenar:
-                vetorCompras = new Produtos[listaCompras.size()];
-                vetorCompras = listaCompras.toArray(vetorCompras);
-                listaCompras = (List<Produtos>) utlListeCompre.ordenarListaPreco(vetorCompras, 0, listaCompras.size() - 1);
-                configuraRecyclerView(listaCompras, view);
-                break;
-            case R.id.btnOrdenarPreco:
-                vetorCompras = new Produtos[listaCompras.size()];
-                vetorCompras = listaCompras.toArray(vetorCompras);
-                listaCompras = (List<Produtos>) utlListeCompre.ordenarListaPreco(vetorCompras, 0, listaCompras.size() - 1);
-                configuraRecyclerView(listaCompras, view);
-                break;
-        }
-
+        //Cria lista
     }
-
-     @Override
-    public void passaInformacao(String nome) {
-        this.nome_lista = nome;
-    }
-
 
     /**
      * Configuração RecyclerView
@@ -236,6 +215,47 @@ public class FragmentListaCompras extends Fragment implements View.OnClickListen
 
             }
         }
+    }
+
+
+    /***************** Icones Tool Bar ********************/
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int res_id = item.getItemId();
+        if(res_id == R.id.icon_more_info_compra){
+
+            Toast.makeText(getContext(), "Icon de busca", Toast.LENGTH_SHORT).show();
+
+        }else if (res_id == R.id.icon_sort_compra){
+            ordenarPreco(getView());
+
+            Toast.makeText(getContext(), "Icon de Ordenação Fragment", Toast.LENGTH_SHORT).show();
+
+
+        }else{
+            Toast.makeText(getContext(), "Icone nao mapeado aqui", Toast.LENGTH_SHORT).show();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void ordenarPreco(View view){
+        vetorCompras = new Produtos[listaCompras.size()];
+        vetorCompras = listaCompras.toArray(vetorCompras);
+        listaCompras = (List<Produtos>) utlListeCompre.ordenarListaPreco(vetorCompras, 0, listaCompras.size() - 1);
+        configuraRecyclerView(listaCompras, view);
+    }
+
+    public void ordenarNome(View view){
+        vetorCompras = new Produtos[listaCompras.size()];
+        vetorCompras = listaCompras.toArray(vetorCompras);
+        listaCompras = (List<Produtos>) utlListeCompre.ordenarListaPreco(vetorCompras, 0, listaCompras.size() - 1);
+        configuraRecyclerView(listaCompras, view);
     }
 }
 
