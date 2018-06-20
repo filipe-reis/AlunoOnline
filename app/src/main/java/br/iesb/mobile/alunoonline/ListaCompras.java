@@ -5,6 +5,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
 
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,8 +33,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import br.iesb.mobile.alunoonline.Model.Lista;
+import br.iesb.mobile.alunoonline.Model.Parametros;
 import br.iesb.mobile.alunoonline.fragments.FragmentAdapter;
 import br.iesb.mobile.alunoonline.fragments.FragmentListaCompras;
 import br.iesb.mobile.alunoonline.fragments.FragmentListaMercados;
@@ -47,13 +53,24 @@ public class ListaCompras extends AppCompatActivity{
     private Fragment fragmentListaCompras;
     private Fragment fragmentListaMercados;
     private Toolbar toolbar;
+    private DatabaseReference comprasRef;
+    private FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_lista_compras);
 
-            tabLayout = findViewById(R.id.tabLayout);
+        Intent it = getIntent();
+        nome_lista = it.getStringExtra("nome");
+
+        comprasRef = database.getReference().child("/Parametros");
+
+        setLista();
+
+        tabLayout = findViewById(R.id.tabLayout);
             viewPager = findViewById(R.id.view_pager);
             toolbar = findViewById(R.id.my_awesome_toolbar);
             setSupportActionBar(toolbar);
@@ -63,11 +80,12 @@ public class ListaCompras extends AppCompatActivity{
             viewPager.setAdapter(fragmentAdapter);
             tabLayout.setupWithViewPager(viewPager);
 
+
             fragmentListaCompras = new FragmentListaCompras();
             fragmentListaMercados = new FragmentListaMercados();
 
-            Intent it = getIntent();
-            nome_lista = it.getStringExtra("nome");
+
+
     }
 
     @Override
@@ -97,8 +115,14 @@ public class ListaCompras extends AppCompatActivity{
 //        return super.onOptionsItemSelected(item);
 //    }
 
+    public void setLista(){
 
-    public void enviaMensagemParaOFragment(String nome, PassadorDeInformacao fragment) {
-        fragment.passaInformacao(nome);
+
+        Map<String, Parametros> param = new HashMap<>();
+        param.put("Lista", new Parametros(nome_lista));
+
+        comprasRef.setValue(param);
     }
+
 }
+

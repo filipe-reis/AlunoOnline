@@ -1,5 +1,6 @@
 package br.iesb.mobile.alunoonline.fragments;
 
+import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.iesb.mobile.alunoonline.ListaCompras;
+import br.iesb.mobile.alunoonline.Model.Parametros;
 import br.iesb.mobile.alunoonline.Model.Produtos;
 import br.iesb.mobile.alunoonline.R;
 import br.iesb.mobile.alunoonline.UtlListeCompre;
@@ -37,18 +40,20 @@ import br.iesb.mobile.alunoonline.UtlListeCompre;
 public class FragmentListaCompras extends Fragment implements View.OnClickListener{
     private CompraAdapter recyclerViewAdapter;
     private RecyclerView recyclerView;
-    private FirebaseDatabase database;
-    private DatabaseReference listaCompraReference;
+    private FirebaseDatabase database, database1;
+    private DatabaseReference listaCompraReference, ref;
     String nome_lista;
     private Button btnCriaLista;
     private TextView txtPrecoTotalLista;
 
-    public double precoTotalLista = 0.0;
+    public double precoTotalLista = 0.0, arredondado = 0.0;
     UtlListeCompre utlListeCompre;
 
     public List<Produtos> listaCompras = new ArrayList<>();
+    public List<String> param = new ArrayList<>();
     Produtos[] vetorCompras;
 
+    //Construtor
     public FragmentListaCompras(){}
 
     @Override
@@ -78,6 +83,7 @@ public class FragmentListaCompras extends Fragment implements View.OnClickListen
         //Divide os itens da lista
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(),DividerItemDecoration.VERTICAL));
 
+        getNomeLista();
         getListaCompras();
 
         utlListeCompre     = new UtlListeCompre();
@@ -98,12 +104,38 @@ public class FragmentListaCompras extends Fragment implements View.OnClickListen
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(),DividerItemDecoration.VERTICAL));
     }
 
+    public void getNomeLista() {
+        try{
+            database1 = FirebaseDatabase.getInstance();
+            ref = database1.getReference().child("/Parametros");
+        }catch(Exception e){
+            System.out.print("ERRO - " + e.getMessage());
+        }
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot c : dataSnapshot.getChildren()) {
+                    try {
+                        param.add(c.child("nome_lista").getValue().toString());
+                    } catch (Exception e) {
+                        System.out.println("ERRO Recuperando produto: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     private void getListaCompras() {
         ListaCompras nomeListaCompra = new ListaCompras();
         //Recuperar do banco de dados
         try{
             database = FirebaseDatabase.getInstance();
-            listaCompraReference = database.getReference().child("/Compras/filipe");
+            listaCompraReference = database.getReference().child("/Compras/filipe" );
         }catch(Exception e){
             System.out.print("ERRO - " + e.getMessage());
         }
@@ -132,6 +164,8 @@ public class FragmentListaCompras extends Fragment implements View.OnClickListen
                     }
                 }
                 recyclerViewAdapter.notifyDataSetChanged();
+                arredondarPreco();
+                persistirValorTotal();
             }
 
             @Override
@@ -150,12 +184,27 @@ public class FragmentListaCompras extends Fragment implements View.OnClickListen
      * @param precoProdAtual
      */
     public void calculaPrecoTotalLista(double precoProdAtual){
-
         precoTotalLista += precoProdAtual;
-
-        precoTotalLista = Math.ceil(precoTotalLista);
-        txtPrecoTotalLista.setText(String.valueOf(precoTotalLista).replace('.', ','));
     }
+
+    public void arredondarPreco(){
+            arredondado = precoTotalLista;
+            arredondado *= (Math.pow(10, 2)); //Multiplica por 100
+
+            arredondado = Math.ceil(arredondado); //Arredonda sempre pra cima
+
+            arredondado /= (Math.pow(10, 2)); // Divide por 100 revertendo a primeira operação
+
+        txtPrecoTotalLista.setText(String.valueOf(arredondado).replace('.', ','));
+    }
+
+    public void persistirValorTotal(){
+        DatabaseReference banco = FirebaseDatabase.getInstance().getReference().child("/Parametros");
+        banco.child("Lista").setValue(new Parametros("filipe", arredondado));
+
+    }
+
+
 
     @Override
     public void onClick(View view) {
@@ -217,7 +266,6 @@ public class FragmentListaCompras extends Fragment implements View.OnClickListen
         }
     }
 
-
     /***************** Icones Tool Bar ********************/
 
     @Override
@@ -257,6 +305,12 @@ public class FragmentListaCompras extends Fragment implements View.OnClickListen
         listaCompras = (List<Produtos>) utlListeCompre.ordenarListaPreco(vetorCompras, 0, listaCompras.size() - 1);
         configuraRecyclerView(listaCompras, view);
     }
+
+    public void setarNome(String nome){
+        this.nome_lista = nome;
+    }
 }
+
+
 
 

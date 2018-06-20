@@ -31,6 +31,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.iesb.mobile.alunoonline.Model.Lista;
+
 public class ListaListas extends AppCompatActivity implements ProdutoRecyclerClickListener{
 
     RecyclerView recyclerView;
@@ -40,7 +42,7 @@ public class ListaListas extends AppCompatActivity implements ProdutoRecyclerCli
     FloatingActionButton fab;
     private EditText nome_lista_dialog;
 
-    public List<String> listas = new ArrayList<>();
+    public List<Lista> listas = new ArrayList<>();
     Toolbar toolbar;
 
     @Override
@@ -112,20 +114,42 @@ public class ListaListas extends AppCompatActivity implements ProdutoRecyclerCli
 
     public void getListas(){
 
-        comprasRef.addValueEventListener(new ValueEventListener() {
+//        comprasRef.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                listas.clear();
+//                for(DataSnapshot c : dataSnapshot.getChildren()){
+//                    listas.add(c.getKey().toString());
+//                }
+//                recyclerViewAdapter.notifyDataSetChanged();
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//                Toast.makeText(ListaListas.this, "Não foi possível recuperar os dados do banco de dados", Toast.LENGTH_LONG).show();
+//                Log.e("ERRO - Lista de Compras", databaseError.getMessage());
+//
+//            }
+//        });
+//
+//
+//
+
+        DatabaseReference db = FirebaseDatabase.getInstance().getReference("/Parametros");
+        db.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                listas.clear();
-                for(DataSnapshot c : dataSnapshot.getChildren()){
-                    listas.add(c.getKey().toString());
+                for (DataSnapshot c :  dataSnapshot.getChildren()){
+                    Lista l= new Lista();
+                    l.setPreco(Double.parseDouble(c.child("valorTotalLista").getValue().toString()));
+                    l.setNome(c.child("nome_lista").getValue().toString());
+                    listas.add(l);
                 }
                 recyclerViewAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(ListaListas.this, "Não foi possível recuperar os dados do banco de dados", Toast.LENGTH_LONG).show();
-                Log.e("ERRO - Lista de Compras", databaseError.getMessage());
 
             }
         });

@@ -10,17 +10,21 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.List;
 
+import br.iesb.mobile.alunoonline.Model.Lista;
 import br.iesb.mobile.alunoonline.Model.ListadasListas;
 
 public class ListaAdapter extends RecyclerView.Adapter<ListaAdapter.ListaViewHolder>{
     private Context context;
-    private List<String> lista;
+    private List<Lista> lista;
     private ProdutoRecyclerClickListener listaRecyclerClickListener;
 
 
-    public ListaAdapter(Context context, List<String> lista) {
+    public ListaAdapter(Context context, List<Lista> lista) {
         this.context = context;
         this.lista = lista;
     }
@@ -34,9 +38,9 @@ public class ListaAdapter extends RecyclerView.Adapter<ListaAdapter.ListaViewHol
 
     @Override
     public void onBindViewHolder(@NonNull ListaViewHolder holder, int position) {
-        ListadasListas listas = new ListadasListas();
-        listas.setNome(lista.get(position));
-        listas.setPreco(99.90);
+        Lista listas = lista.get(position);
+//        listas.setNome(lista.get(position));
+//        listas.setPreco(99.90);
 
         holder.textNomeLista.setText(listas.getNome());
         holder.textPrecoLista.setText("Menor Preço da Lista: R$" + listas.getPreco()); //Pegar preço final da lista
@@ -56,7 +60,7 @@ public class ListaAdapter extends RecyclerView.Adapter<ListaAdapter.ListaViewHol
     public class ListaViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         public TextView textNomeLista, textPrecoLista;
-        ListadasListas listas;
+        Lista listas;
 
         public ListaViewHolder(View itemView) {
             super(itemView);
