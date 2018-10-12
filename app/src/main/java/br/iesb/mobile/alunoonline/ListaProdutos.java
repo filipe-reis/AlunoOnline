@@ -110,7 +110,7 @@ public class ListaProdutos extends AppCompatActivity implements ProdutoRecyclerC
         protected List<Produto> doInBackground(Void... params) {
             utl = new UtlListeCompre();
 
-            return utl.getInformacao("http://192.168.0.104:8080/produtos");
+            return utl.getInformacao("http://172.27.1.83:8080/produtos");
         }
 
         @Override

@@ -84,7 +84,7 @@ public class Cadastro extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(processo.isSuccessful()){
-                    Intent intent = new Intent(Cadastro.this, Perfil.class);
+                    Intent intent = new Intent(Cadastro.this, ListaListas.class);
                     startActivity(intent);
                 }else{
                     Toast.makeText(Cadastro.this, "Cadastro inválido!", Toast.LENGTH_LONG).show();

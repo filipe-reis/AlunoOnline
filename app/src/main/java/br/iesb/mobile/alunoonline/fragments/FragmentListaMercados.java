@@ -1,5 +1,7 @@
 package br.iesb.mobile.alunoonline.fragments;
 
+import android.app.Activity;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -29,54 +31,101 @@ import br.iesb.mobile.alunoonline.Model.Produtos;
 import br.iesb.mobile.alunoonline.R;
 
 public class FragmentListaMercados extends Fragment {
+    private static final String EXTRA_LISTA_PRODUTOS = "EXTRA_LISTA_PRODUTOS";
+    private static final String EXTRA_NOME_LISTA = "EXTRA_NOME_LISTA";
+    private static final String  EXTRA_PRECO_LISTA = "EXTRA_PRECO_LISTA";
+
     private MercadoAdapter recyclerViewAdapter;
     private RecyclerView recyclerView;
 
-    private List<Mercado> listaMercados = new ArrayList<>();
+    public List<Mercado> listaMercados = new ArrayList<>();
+    public List<Produtos> listaProdutosMercado = new ArrayList<>();
+    public List<Produtos> listaTodosProdutos = new ArrayList<>();
+
+    private String nomeLista, preco;
+    private View view;
+
+    public static FragmentListaMercados newInstance(ArrayList<Produtos> produtos, String nome_lista, double preco) {
+
+        Bundle args = new Bundle();
+        args.putSerializable(EXTRA_LISTA_PRODUTOS, produtos);
+        args.putString(EXTRA_NOME_LISTA, nome_lista);
+        args.putString(EXTRA_PRECO_LISTA, String.valueOf(preco));
+        FragmentListaMercados fragment = new FragmentListaMercados();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        listaTodosProdutos = (ArrayList<Produtos>) getArguments().getSerializable(EXTRA_LISTA_PRODUTOS);
+        nomeLista = getArguments().getString(EXTRA_NOME_LISTA);
+        preco = getArguments().getString(EXTRA_PRECO_LISTA);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.tab_mercados, container, false);
-
-        recyclerViewAdapter = new MercadoAdapter(listaMercados);
-        recyclerView = view.findViewById(R.id.ListaMercados);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter(recyclerViewAdapter);
+        view = inflater.inflate(R.layout.tab_mercados, container, false);
 
         getListaMercados();
         return view;
     }
 
-    public void getListaMercados(){
+    public void getListaMercados() {
 
         DatabaseReference listaMercadoRef = null;
-        try{
+        try {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
-            listaMercadoRef = database.getReference().child("/Mercados");
-        }catch(Exception e){
+            listaMercadoRef = database.getReference().child("/Mercados/");
+        } catch (Exception e) {
             System.out.print("ERRO - " + e.getMessage());
         }
 
         listaMercadoRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
-                for(DataSnapshot c : dataSnapshot.getChildren()){
+                listaMercados.clear();
+                for (DataSnapshot c : dataSnapshot.getChildren()) {
                     Mercado mercado = new Mercado();
-                    try{
-                        mercado.setNome( c.child("Sobre").child("Nome")  .getValue().toString());
-                        mercado.setDistancia(new BigDecimal(c.child("Sobre").child("Distancia").getValue().toString().replace(',', '.')) );
-                        mercado.setPreco(new BigDecimal(c.child("Sobre").child("Preco").getValue().toString().replace(',', '.')));
-
-                    }catch(Exception e){
+                    try {
+                        mercado.setNome(c.child("Sobre").child("nome").getValue().toString());
+                    } catch (Exception e) {
                         System.out.println("ERRO Recuperando produto: " + e.getMessage());
                         e.printStackTrace();
                     }
 
                     listaMercados.add(mercado);
                 }
-                recyclerViewAdapter.notifyDataSetChanged();
+
+                for(int i = 0; i < listaMercados.size(); i++){
+                    double precoMercadoTotal = 0, precoMercado = 0;
+                    int count = 1;
+
+                    while(count <= 15){
+                        String path = i+1 + "/" + count + "/preco";
+                        precoMercado = (Double.parseDouble(dataSnapshot.child(path).getValue().toString()));
+                        precoMercadoTotal = precoMercadoTotal + precoMercado;
+                        count++;
+                    }
+
+                    double precoMercadoTotalArredondado = precoMercadoTotal;
+                    precoMercadoTotalArredondado *= (Math.pow(10, 2)); //Multiplica por 100
+
+                    precoMercadoTotalArredondado = Math.ceil(precoMercadoTotalArredondado); //Arredonda sempre pra cima
+
+                    precoMercadoTotalArredondado/= (Math.pow(10, 2)); // Divide por 100 revertendo a primeira operação
+
+                    listaMercados.get(i).setPreco(precoMercadoTotalArredondado);
+                }
+
+                recyclerViewAdapter = new MercadoAdapter(getListMercadoView());
+                recyclerView = view.findViewById(R.id.ListaMercados);
+                recyclerView.setItemAnimator(new DefaultItemAnimator());
+                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                recyclerView.setAdapter(recyclerViewAdapter);
+
             }
 
             @Override
@@ -88,15 +137,22 @@ public class FragmentListaMercados extends Fragment {
         });
     }
 
+    private ListaMercadoView getListMercadoView() {
+        ListaMercadoView listaMercadoView = new ListaMercadoView();
+        listaMercadoView.mercados = listaMercados;
+       // listaMercadoView.total = "90,00";
+        return listaMercadoView;
+    }
+
     /**
      * Configuração RecyclerView
      */
-    public class MercadoAdapter extends RecyclerView.Adapter<MercadoAdapter.MercadoViewHolder>{
+    public class MercadoAdapter extends RecyclerView.Adapter<MercadoAdapter.MercadoViewHolder> {
 
-        private List<Mercado> listaMercados;
+        private ListaMercadoView listaMercadoView;
 
-        public MercadoAdapter(List<Mercado> listaMercados){
-            this.listaMercados = listaMercados;
+        public MercadoAdapter(ListaMercadoView listaMercadoView) {
+            this.listaMercadoView = listaMercadoView;
         }
 
         @NonNull
@@ -108,11 +164,10 @@ public class FragmentListaMercados extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull MercadoAdapter.MercadoViewHolder holder, int position) {
-            Mercado mercado = listaMercados.get(position);
+            Mercado mercado = listaMercadoView.mercados.get(position);
 
             holder.nomeMercado.setText(mercado.getNome());
             holder.precoMercado.setText(String.valueOf(mercado.getPreco()));
-            holder.distanciaMercado.setText(String.valueOf(mercado.getDistancia()));
 
             holder.mercado = mercado;
         }
@@ -126,7 +181,7 @@ public class FragmentListaMercados extends Fragment {
         /**
          * Mercado View Holder
          */
-        public class MercadoViewHolder extends RecyclerView.ViewHolder{
+        public class MercadoViewHolder extends RecyclerView.ViewHolder {
 
             public TextView nomeMercado, precoMercado, distanciaMercado;
             public Mercado mercado;
@@ -135,7 +190,6 @@ public class FragmentListaMercados extends Fragment {
                 super(itemView);
                 nomeMercado = itemView.findViewById(R.id.txtMercado);
                 precoMercado = itemView.findViewById(R.id.txtPreco);
-                distanciaMercado =  itemView.findViewById(R.id.txtDistancia);
 
                 RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) itemView.getLayoutParams();
                 params.setMargins(20, 0, 0, 0);
@@ -143,6 +197,12 @@ public class FragmentListaMercados extends Fragment {
 
             }
         }
+    }
+
+    //O que a recycler view vai exibir
+    public class ListaMercadoView{
+        List<Mercado> mercados;
+        String total;
     }
 
 

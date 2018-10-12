@@ -1,11 +1,9 @@
 package br.iesb.mobile.alunoonline.fragments;
 
-import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,7 +19,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -35,44 +32,57 @@ import br.iesb.mobile.alunoonline.ListaCompras;
 import br.iesb.mobile.alunoonline.Model.Parametros;
 import br.iesb.mobile.alunoonline.Model.Produtos;
 import br.iesb.mobile.alunoonline.R;
-import br.iesb.mobile.alunoonline.UtlListeCompre;
+import br.iesb.mobile.alunoonline.util.UtlListeCompre;
 
 public class FragmentListaCompras extends Fragment implements View.OnClickListener{
+    private static final String EXTRA_LISTA_PRODUTOS ="EXTRA_LISTA_PRODUTOS";
+    private static final String EXTRA_NOME_LISTA = "EXTRA_NOME_LISTA";
+    private static final String EXTRA_PRECO_LISTA = "EXTRA_PRECO_LISTA";
+
     private CompraAdapter recyclerViewAdapter;
     private RecyclerView recyclerView;
     private FirebaseDatabase database, database1;
-    private DatabaseReference listaCompraReference, ref;
     String nome_lista;
     private Button btnCriaLista;
     private TextView txtPrecoTotalLista;
 
-    public double precoTotalLista = 0.0, arredondado = 0.0;
+    public double precoTotalLista = 0.0;
+    public String arredondado;
     UtlListeCompre utlListeCompre;
 
     public List<Produtos> listaCompras = new ArrayList<>();
-    public List<String> param = new ArrayList<>();
     Produtos[] vetorCompras;
 
-    //Construtor
-    public FragmentListaCompras(){}
+    public static FragmentListaCompras newInstance(ArrayList<Produtos> produtos, String nome_lista, double preco) {
+
+        Bundle args = new Bundle();
+        args.putSerializable(EXTRA_LISTA_PRODUTOS, produtos);
+        args.putString(EXTRA_NOME_LISTA, nome_lista);
+        args.putString(EXTRA_PRECO_LISTA, String.valueOf(preco));
+        FragmentListaCompras fragment = new FragmentListaCompras();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        listaCompras = (ArrayList<Produtos>) getArguments().getSerializable(EXTRA_LISTA_PRODUTOS);
+        nome_lista = getArguments().getString(EXTRA_NOME_LISTA);
+        arredondado = getArguments().getString(EXTRA_PRECO_LISTA);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-
         return inflater.inflate(R.layout.tab_compras, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        txtPrecoTotalLista = view.findViewById(R.id.txtPrecoTotaLista);
 
         recyclerViewAdapter = new CompraAdapter(listaCompras);
         recyclerView = view.findViewById(R.id.ListaCompras);
@@ -82,15 +92,10 @@ public class FragmentListaCompras extends Fragment implements View.OnClickListen
 
         //Divide os itens da lista
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(),DividerItemDecoration.VERTICAL));
-
-        getNomeLista();
-        getListaCompras();
+        txtPrecoTotalLista.setText(String.valueOf(arredondado).replace('.', ','));
 
         utlListeCompre     = new UtlListeCompre();
-        btnCriaLista       = view.findViewById(R.id.btnCriarLista);
-        txtPrecoTotalLista = view.findViewById(R.id.txtPrecoTotaLista);
 
-        btnCriaLista.setOnClickListener(this);
     }
 
     private void configuraRecyclerView(List<Produtos> listaRV, View view){
@@ -102,109 +107,9 @@ public class FragmentListaCompras extends Fragment implements View.OnClickListen
 
         //Divide os itens da lista
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(),DividerItemDecoration.VERTICAL));
-    }
-
-    public void getNomeLista() {
-        try{
-            database1 = FirebaseDatabase.getInstance();
-            ref = database1.getReference().child("/Parametros");
-        }catch(Exception e){
-            System.out.print("ERRO - " + e.getMessage());
-        }
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot c : dataSnapshot.getChildren()) {
-                    try {
-                        param.add(c.child("nome_lista").getValue().toString());
-                    } catch (Exception e) {
-                        System.out.println("ERRO Recuperando produto: " + e.getMessage());
-                        e.printStackTrace();
-                    }
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    private void getListaCompras() {
-        ListaCompras nomeListaCompra = new ListaCompras();
-        //Recuperar do banco de dados
-        try{
-            database = FirebaseDatabase.getInstance();
-            listaCompraReference = database.getReference().child("/Compras/filipe" );
-        }catch(Exception e){
-            System.out.print("ERRO - " + e.getMessage());
-        }
-
-        listaCompraReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                for(DataSnapshot c : dataSnapshot.getChildren()){
-                    Produtos produto = new Produtos();
-                    try{
-                        produto.setDesc( c.child("Descricao").getValue().toString());
-                        produto.setNome( c.child("Produto")  .getValue().toString());
-                        produto.setMarca(c.child("Marca")    .getValue().toString());
-                        produto.setPreco(Double.parseDouble(c.child("Preco")
-                                .getValue().toString().replace(',', '.')));
-
-                    }catch(Exception e){
-                        System.out.println("ERRO Recuperando produto: " + e.getMessage());
-                        e.printStackTrace();
-                    }
-
-                    if(c.hasChild("Produto")){
-                        listaCompras.add(produto);
-                        calculaPrecoTotalLista(produto.getPreco());
-                    }
-                }
-                recyclerViewAdapter.notifyDataSetChanged();
-                arredondarPreco();
-                persistirValorTotal();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(getContext(), "Não foi possível recuperar os dados do banco de dados", Toast.LENGTH_LONG).show();
-                Log.e("ERRO - Lista de Compras", databaseError.getMessage());
-
-            }
-        });
-
-    }
-
-    /**
-     * Incremento do preco do novo produto inserido
-     * E seta na tela
-     * @param precoProdAtual
-     */
-    public void calculaPrecoTotalLista(double precoProdAtual){
-        precoTotalLista += precoProdAtual;
-    }
-
-    public void arredondarPreco(){
-            arredondado = precoTotalLista;
-            arredondado *= (Math.pow(10, 2)); //Multiplica por 100
-
-            arredondado = Math.ceil(arredondado); //Arredonda sempre pra cima
-
-            arredondado /= (Math.pow(10, 2)); // Divide por 100 revertendo a primeira operação
-
         txtPrecoTotalLista.setText(String.valueOf(arredondado).replace('.', ','));
-    }
-
-    public void persistirValorTotal(){
-        DatabaseReference banco = FirebaseDatabase.getInstance().getReference().child("/Parametros");
-        banco.child("Lista").setValue(new Parametros("filipe", arredondado));
 
     }
-
-
 
     @Override
     public void onClick(View view) {
@@ -234,7 +139,8 @@ public class FragmentListaCompras extends Fragment implements View.OnClickListen
             Produtos produtos = listaCompras.get(position);
 
             holder.nome.setText(produtos.getNome());
-            holder.preco.setText(String.valueOf(produtos.getPreco()));
+            //holder.preco.setText(String.valueOf(produtos.getPreco()));
+            holder.desc.setText(String.valueOf(produtos.getDesc()));
 
             holder.produto = produtos;
         }
@@ -250,13 +156,14 @@ public class FragmentListaCompras extends Fragment implements View.OnClickListen
 
         public class CompraViewHolder extends RecyclerView.ViewHolder{
 
-            public TextView nome, preco;
+            public TextView nome, desc;
             public Produtos produto;
 
             public CompraViewHolder(View itemView) {
                 super(itemView);
                 nome = itemView.findViewById(R.id.nome_produto);
-                preco = itemView.findViewById(R.id.preco);
+                //preco = itemView.findViewById(R.id.preco);
+                desc  = itemView.findViewById(R.id.desc);
 
                 RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) itemView.getLayoutParams();
                 params.setMargins(20, 0, 0, 0);
@@ -276,18 +183,12 @@ public class FragmentListaCompras extends Fragment implements View.OnClickListen
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int res_id = item.getItemId();
-        if(res_id == R.id.icon_more_info_compra){
-
-            Toast.makeText(getContext(), "Icon de busca", Toast.LENGTH_SHORT).show();
-
-        }else if (res_id == R.id.icon_sort_compra){
+       /* if(res_id == R.id.icon_more_info_compra){
+            ordenarNome(getView());
+            Toast.makeText(getContext(), "Ordena por Nome", Toast.LENGTH_SHORT).show();
+        }else */if (res_id == R.id.icon_sort_compra){
             ordenarPreco(getView());
-
-            Toast.makeText(getContext(), "Icon de Ordenação Fragment", Toast.LENGTH_SHORT).show();
-
-
-        }else{
-            Toast.makeText(getContext(), "Icone nao mapeado aqui", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Ordena por Preco", Toast.LENGTH_SHORT).show();
         }
         return super.onOptionsItemSelected(item);
     }

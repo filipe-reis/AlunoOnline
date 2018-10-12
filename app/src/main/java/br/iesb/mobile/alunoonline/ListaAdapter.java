@@ -22,6 +22,7 @@ public class ListaAdapter extends RecyclerView.Adapter<ListaAdapter.ListaViewHol
     private Context context;
     private List<Lista> lista;
     private ProdutoRecyclerClickListener listaRecyclerClickListener;
+    private ListaCompras listaCompras = new ListaCompras();
 
 
     public ListaAdapter(Context context, List<Lista> lista) {
@@ -39,11 +40,9 @@ public class ListaAdapter extends RecyclerView.Adapter<ListaAdapter.ListaViewHol
     @Override
     public void onBindViewHolder(@NonNull ListaViewHolder holder, int position) {
         Lista listas = lista.get(position);
-//        listas.setNome(lista.get(position));
-//        listas.setPreco(99.90);
 
         holder.textNomeLista.setText(listas.getNome());
-        holder.textPrecoLista.setText("Menor Preço da Lista: R$" + listas.getPreco()); //Pegar preço final da lista
+        holder.textPrecoLista.setText(""); //Pegar preço final da lista
 
         holder.listas = listas;
     }

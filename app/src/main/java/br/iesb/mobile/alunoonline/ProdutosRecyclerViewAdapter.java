@@ -13,6 +13,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
+import br.iesb.mobile.alunoonline.Model.Produto;
 import br.iesb.mobile.alunoonline.Model.Produtos;
 
 /**
@@ -22,14 +23,14 @@ import br.iesb.mobile.alunoonline.Model.Produtos;
 public class ProdutosRecyclerViewAdapter extends RecyclerView.Adapter<ProdutosRecyclerViewAdapter.ProdutoViewHolder> {
 
     private Context context;
-    private List<Produtos> listaProdutos;
+    private List<Produto> listaProdutos;
     private ProdutoRecyclerClickListener produtoRecyclerClickListener;
     FirebaseDatabase database;
     String nome_lista;
     int contItem = 1;
 
 
-    public ProdutosRecyclerViewAdapter(Context context, List<Produtos> listaProdutos, String nome_lista) {
+    public ProdutosRecyclerViewAdapter(Context context, List<Produto> listaProdutos, String nome_lista) {
         this.context = context;
         this.listaProdutos = listaProdutos;
         this.nome_lista = nome_lista;
@@ -45,12 +46,12 @@ public class ProdutosRecyclerViewAdapter extends RecyclerView.Adapter<ProdutosRe
 
     @Override
     public void onBindViewHolder(ProdutoViewHolder holder, int position) {
-        Produtos produtos = listaProdutos.get(position);
+        Produto produto = listaProdutos.get(position);
 
-        holder.nome.setText(produtos.getNome());
-        holder.preco.setText(String.valueOf(produtos.getPreco()));
+        holder.nome.setText(produto.getNome());
+        holder.preco.setText(String.valueOf(produto.getPreco()));
 
-        holder.produto = produtos;
+        holder.produto = produto;
     }
 
     @Override
@@ -73,12 +74,12 @@ public class ProdutosRecyclerViewAdapter extends RecyclerView.Adapter<ProdutosRe
     public class ProdutoViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         public TextView nome, preco;
-        public Produtos produto;
+        public Produto produto;
 
         public ProdutoViewHolder(View itemView) {
             super(itemView);
             nome = itemView.findViewById(R.id.nome_produto);
-            preco = itemView.findViewById(R.id.preco);
+            //preco = itemView.findViewById(R.id.preco);
 
             RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) itemView.getLayoutParams();
             params.setMargins(20, 0, 0, 0);
@@ -98,8 +99,7 @@ public class ProdutosRecyclerViewAdapter extends RecyclerView.Adapter<ProdutosRe
                 //Setar o nome da lista na child
                 compra.child(nome_lista).child(String.valueOf(contItem)).child("Produto")  .setValue(produto.getNome ().toString());
                 compra.child(nome_lista).child(String.valueOf(contItem)).child("Preco")    .setValue(String.valueOf(produto.getPreco()));
-                compra.child(nome_lista).child(String.valueOf(contItem)).child("Marca")    .setValue(produto.getMarca().toString());
-                compra.child(nome_lista).child(String.valueOf(contItem)).child("Descricao").setValue(produto.getDesc ().toString());
+                compra.child(nome_lista).child(String.valueOf(contItem)).child("Descricao").setValue(produto.getDescricao ().toString());
 
                 contItem++;
 

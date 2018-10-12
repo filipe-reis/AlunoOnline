@@ -38,30 +38,38 @@ import java.util.List;
 import java.util.Map;
 
 import br.iesb.mobile.alunoonline.Model.Lista;
+import br.iesb.mobile.alunoonline.Model.Mercado;
 import br.iesb.mobile.alunoonline.Model.Parametros;
+import br.iesb.mobile.alunoonline.Model.Produtos;
 import br.iesb.mobile.alunoonline.fragments.FragmentAdapter;
 import br.iesb.mobile.alunoonline.fragments.FragmentListaCompras;
 import br.iesb.mobile.alunoonline.fragments.FragmentListaMercados;
 import br.iesb.mobile.alunoonline.fragments.PassadorDeInformacao;
+import br.iesb.mobile.alunoonline.util.UtlListeCompre;
 
-public class ListaCompras extends AppCompatActivity{
+public class ListaCompras extends AppCompatActivity {
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private String    nome_lista;
+    private String nome_lista;
     private FragmentAdapter fragmentAdapter;
-    private Fragment fragmentListaCompras;
-    private Fragment fragmentListaMercados;
     private Toolbar toolbar;
     private DatabaseReference comprasRef;
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
-
+    private ArrayList<Produtos> listaCompras = new ArrayList<>();
+    private List<Mercado> listaMercados = new ArrayList<>();
+    private DatabaseReference listaCompraReference, ref;
+    private double precoTotal;
+    private UtlListeCompre utlListeCompre = new UtlListeCompre();
+    public ArrayList<Produtos> produtosMercado = new ArrayList<>();
+    public double precoTotalLista = 0.0, arredondado = 0.0;
+    private FragmentListaMercados fragmentListaMercados = new FragmentListaMercados();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_lista_compras);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_lista_compras);
 
         Intent it = getIntent();
         nome_lista = it.getStringExtra("nome");
@@ -69,21 +77,14 @@ public class ListaCompras extends AppCompatActivity{
         comprasRef = database.getReference().child("/Parametros");
 
         setLista();
+        getListaCompras();
 
         tabLayout = findViewById(R.id.tabLayout);
-            viewPager = findViewById(R.id.view_pager);
-            toolbar = findViewById(R.id.my_awesome_toolbar);
-            setSupportActionBar(toolbar);
+        viewPager = findViewById(R.id.view_pager);
+        toolbar = findViewById(R.id.my_awesome_toolbar);
+        setSupportActionBar(toolbar);
 
-
-            fragmentAdapter = new FragmentAdapter(getSupportFragmentManager(), getResources().getStringArray(R.array.titulo_tabs_lista_compras));
-            viewPager.setAdapter(fragmentAdapter);
-            tabLayout.setupWithViewPager(viewPager);
-
-
-            fragmentListaCompras = new FragmentListaCompras();
-            fragmentListaMercados = new FragmentListaMercados();
-
+        conciliarProdutosComListadeCompras();
 
 
     }
@@ -115,8 +116,43 @@ public class ListaCompras extends AppCompatActivity{
 //        return super.onOptionsItemSelected(item);
 //    }
 
-    public void setLista(){
+    public double conciliarProdutosComListadeCompras() {
+        int i = 0;
+        Log.d("TESTE", "Conciliar Produtos Lista de Compras");
+        DatabaseReference merRef = FirebaseDatabase.getInstance().getReference().child("/Mercados/1/");
+        // for(i = 0; i < listaMercados.size(); i++){
+        //merRef.child(String.valueOf(i+1));
+        merRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                produtosMercado.clear();
+                for (DataSnapshot c : dataSnapshot.getChildren()) {
+                    Produtos p = new Produtos();
+                    if (c.hasChild("produto")) {
+                        p.setPreco(Double.parseDouble(c.child("preco").getValue().toString()));
 
+                        p.setNome(c.child("produto").getValue().toString());
+
+                        produtosMercado.add(p);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+//        }
+//
+//        for(i = 1; i <= listaMercados.size(); i++){
+//            precoTotal = utlListeCompre.precoTotaldoMercado(produtosMercado, 1);
+//            atualizarPrecoTotalMercado(precoTotal);
+//        }
+        return precoTotal;
+    }
+
+    public void setLista() {
 
         Map<String, Parametros> param = new HashMap<>();
         param.put("Lista", new Parametros(nome_lista));
@@ -124,5 +160,66 @@ public class ListaCompras extends AppCompatActivity{
         comprasRef.setValue(param);
     }
 
+    private void getListaCompras() {
+        try {
+            database = FirebaseDatabase.getInstance();
+            listaCompraReference = database.getReference().child("/Compras/"+nome_lista);
+        } catch (Exception e) {
+            System.out.print("ERRO - " + e.getMessage());
+        }
+
+        listaCompraReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot c : dataSnapshot.getChildren()) {
+                    Produtos produto = new Produtos();
+                    try {
+                        produto.setDesc(c.child("Descricao").getValue().toString());
+                        produto.setNome(c.child("Produto").getValue().toString());
+                        produto.setMarca(c.child("Marca").getValue().toString());
+                        produto.setPreco(Double.parseDouble(c.child("Preco")
+                                .getValue().toString().replace(',', '.')));
+
+                    } catch (Exception e) {
+                        System.out.println("ERRO Recuperando produto: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+
+                    if (c.hasChild("Produto")) {
+                        listaCompras.add(produto);
+                        calculaPrecoTotalLista(produto.getPreco());
+                    }
+                }
+                arredondarPreco();
+                fragmentAdapter = new FragmentAdapter(getSupportFragmentManager(), getResources().getStringArray(R.array.titulo_tabs_lista_compras), nome_lista, listaCompras, arredondado);
+                viewPager.setAdapter(fragmentAdapter);
+                tabLayout.setupWithViewPager(viewPager);
+
+            }
+
+            public void calculaPrecoTotalLista(double precoProdAtual) {
+                precoTotalLista += precoProdAtual;
+            }
+
+            public void arredondarPreco() {
+                arredondado = precoTotalLista;
+                arredondado *= (Math.pow(10, 2)); //Multiplica por 100
+
+                arredondado = Math.ceil(arredondado); //Arredonda sempre pra cima
+
+                arredondado /= (Math.pow(10, 2)); // Divide por 100 revertendo a primeira operação
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(ListaCompras.this, "Não foi possível recuperar os dados do banco de dados", Toast.LENGTH_LONG).show();
+                Log.e("ERRO - Lista de Compras", databaseError.getMessage());
+
+            }
+        });
+
+    }
 }
 

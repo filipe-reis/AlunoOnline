@@ -1,7 +1,9 @@
 package br.iesb.mobile.alunoonline;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -32,6 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.iesb.mobile.alunoonline.Model.Lista;
+import br.iesb.mobile.alunoonline.Model.Produto;
+import br.iesb.mobile.alunoonline.util.UtlListeCompre;
 
 public class ListaListas extends AppCompatActivity implements ProdutoRecyclerClickListener{
 
@@ -41,6 +45,7 @@ public class ListaListas extends AppCompatActivity implements ProdutoRecyclerCli
     private DatabaseReference comprasRef;
     FloatingActionButton fab;
     private EditText nome_lista_dialog;
+    private UtlListeCompre utl;
 
     public List<Lista> listas = new ArrayList<>();
     Toolbar toolbar;
@@ -58,15 +63,15 @@ public class ListaListas extends AppCompatActivity implements ProdutoRecyclerCli
          * Layout para o edit Text da caixa de dialogo
          */
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
         nome_lista_dialog.setLayoutParams(lp);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Adicionar lista", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Adicionar lista", Snackbar.LENGTH_SHORT)
                         .setAction("Action", null).show();
             }
         });
@@ -114,46 +119,47 @@ public class ListaListas extends AppCompatActivity implements ProdutoRecyclerCli
 
     public void getListas(){
 
-//        comprasRef.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                listas.clear();
-//                for(DataSnapshot c : dataSnapshot.getChildren()){
-//                    listas.add(c.getKey().toString());
-//                }
-//                recyclerViewAdapter.notifyDataSetChanged();
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//                Toast.makeText(ListaListas.this, "Não foi possível recuperar os dados do banco de dados", Toast.LENGTH_LONG).show();
-//                Log.e("ERRO - Lista de Compras", databaseError.getMessage());
-//
-//            }
-//        });
-//
-//
-//
-
-        DatabaseReference db = FirebaseDatabase.getInstance().getReference("/Parametros");
-        db.addListenerForSingleValueEvent(new ValueEventListener() {
+        comprasRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot c :  dataSnapshot.getChildren()){
-                    Lista l= new Lista();
-                    l.setPreco(Double.parseDouble(c.child("valorTotalLista").getValue().toString()));
-                    l.setNome(c.child("nome_lista").getValue().toString());
-                    listas.add(l);
+                listas.clear();
+                for(DataSnapshot c : dataSnapshot.getChildren()){
+                    Lista lista = new Lista();
+                    lista.setNome(c.getKey().toString());
+                    listas.add(lista);
                 }
                 recyclerViewAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(ListaListas.this, "Não foi possível recuperar os dados do banco de dados", Toast.LENGTH_LONG).show();
+                Log.e("ERRO - Lista de Compras", databaseError.getMessage());
 
             }
         });
+
+//        DatabaseReference db = FirebaseDatabase.getInstance().getReference("/Parametros");
+//        db.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for (DataSnapshot c :  dataSnapshot.getChildren()){
+//                    Lista l= new Lista();
+//                    l.setPreco(Double.parseDouble(c.child("valorTotalLista").getValue().toString()));
+//                    l.setNome(c.child("nome_lista").getValue().toString());
+//                    listas.add(l);
+//                }
+//                recyclerViewAdapter.notifyDataSetChanged();
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
     }
+
+
 
     /***************** Icones Tool Bar ********************/
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -164,15 +170,15 @@ public class ListaListas extends AppCompatActivity implements ProdutoRecyclerCli
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int res_id = item.getItemId();
-        if(res_id == R.id.icon_more_info_lista){
-            Toast.makeText(getApplicationContext(), "Icon de Info", Toast.LENGTH_SHORT).show();
-        }else if (res_id == R.id.icon_sort_lista){
-            Toast.makeText(getApplicationContext(), "Icon de Ordenação", Toast.LENGTH_SHORT).show();
-        }else{
-            Toast.makeText(getApplicationContext(), "Icone nao mapeado aqui", Toast.LENGTH_SHORT).show();
-        }
-
+//        int res_id = item.getItemId();
+//        if(res_id == R.id.icon_more_info_lista){
+//            Toast.makeText(getApplicationContext(), "Icon de Info", Toast.LENGTH_SHORT).show();
+//        }else if (res_id == R.id.icon_sort_lista){
+//            Toast.makeText(getApplicationContext(), "Icon de Ordenação", Toast.LENGTH_SHORT).show();
+//        }else{
+//            Toast.makeText(getApplicationContext(), "Icone nao mapeado aqui", Toast.LENGTH_SHORT).show();
+//        }
+//
         return super.onOptionsItemSelected(item);
     }
 

@@ -6,20 +6,20 @@
 
 
 
-    <item
-        android:id="@+id/icon_sort_lista"
-        android:title="Sort"
-        android:icon="@drawable/ic_action_sort"
-        app:showAsAction="ifRoom"
-        android:orderInCategory="100">
-    </item>
+    <!--<item-->
+        <!--android:id="@+id/icon_sort_lista"-->
+        <!--android:title="Sort"-->
+        <!--android:icon="@drawable/ic_action_sort"-->
+        <!--app:showAsAction="ifRoom"-->
+        <!--android:orderInCategory="100">-->
+    <!--</item>-->
 
 
-    <item
-        android:id="@+id/icon_more_info_lista"
-        android:title="More Info"
-        android:icon="@drawable/ic_action_more_info"
-        app:showAsAction="ifRoom"
-        android:orderInCategory="200">
-    </item>
+    <!--<item-->
+        <!--android:id="@+id/icon_more_info_lista"-->
+        <!--android:title="More Info"-->
+        <!--android:icon="@drawable/ic_action_more_info"-->
+        <!--app:showAsAction="ifRoom"-->
+        <!--android:orderInCategory="200">-->
+    <!--</item>-->
 </menu>

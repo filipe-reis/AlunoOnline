@@ -1,59 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="50dp"
     android:orientation="horizontal">
 
-    <ImageView
-        android:id="@+id/imagem_poduto"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginBottom="15dp"
-        android:layout_alignParentBottom="false"
-        android:layout_alignParentStart="false"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="20dp"
-        app:srcCompat="@drawable/ic_launcher" />
-
     <TextView
         android:id="@+id/nome_produto"
-        android:layout_width="225dp"
-        android:layout_height="wrap_content"
+        android:layout_width="202dp"
+        android:layout_height="33dp"
         android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="75dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="2dp"
         android:fontFamily="sans-serif"
         android:text="Produto"
         android:textColor="#1F2D3D"
         android:textSize="20sp"
-        tools:ignore="MissingConstraints" />
-
-    <TextView
-        android:id="@+id/preco_produto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_toEndOf="@+id/nome_produto"
-        android:text="R$"
-        android:textColor="#47525E"
-        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.783"
-        app:layout_constraintStart_toEndOf="@+id/nome_produto"
+        app:layout_constraintHorizontal_bias="0.041"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
         tools:ignore="MissingConstraints" />
 
     <TextView
-        android:id="@+id/preco"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_toEndOf="@+id/preco_produto"
-        android:textColor="#47525E"
-        android:textSize="16sp"
-        app:layout_constraintStart_toEndOf="@+id/preco_produto" />
+        android:id="@+id/desc"
+        android:layout_width="202dp"
+        android:layout_height="19dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="6dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:fontFamily="sans-serif"
+        android:text="Desc"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.129"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/nome_produto"
+        app:layout_constraintVertical_bias="0.9"
+        tools:ignore="MissingConstraints" />
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

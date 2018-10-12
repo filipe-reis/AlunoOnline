@@ -14,11 +14,11 @@
     </item>
 
 
-    <item
+   <!-- <item
         android:id="@+id/icon_more_info_compra"
         android:title="More Info"
-        android:icon="@drawable/ic_action_more_info"
+        android:icon="@drawable/ic_action_sort"
         app:showAsAction="ifRoom"
         android:orderInCategory="200">
-    </item>
+    </item>-->
 </menu>

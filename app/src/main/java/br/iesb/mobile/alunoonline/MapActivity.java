@@ -2,6 +2,7 @@ package br.iesb.mobile.alunoonline;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -16,6 +17,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback{
 
@@ -37,21 +42,48 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
+        /*if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
             ActivityCompat.requestPermissions( this, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, MAP_PERMISSION_ACCESS_COURSE_LOCATION);
             //O android gera uma tela para solicitar permissão do usuario
             //Quando o usuario responder ira voltar no metodo onRequestPermissionsResult
         } else {
             //getLastLocation();
             getLocation();
-        }
+        }*/
+
+        List<LatLng> decodedPath = new ArrayList<>();
+        decodedPath.add(new LatLng(-15.8318566 ,-47.9109529)); // latitude e longitude
+        decodedPath.add(new LatLng(-15.832100, -47.910353)); // latitude e longitude
+        decodedPath.add(new LatLng(-15.829684, -47.906855)); // latitude e longitude
+        decodedPath.add(new LatLng(-15.828558, -47.905414));
+        decodedPath.add(new LatLng(-15.828280, -47.905758));
+        decodedPath.add(new LatLng(-15.827769, -47.906024));
+        decodedPath.add(new LatLng(-15.827527, -47.905887));
+        decodedPath.add(new LatLng(-15.827190, -47.906108));
 
 
-        /*
-        LatLng iesbSul = new LatLng(-15.7571194, -47.8788442);
+        decodedPath.add(new LatLng(-15.827190, -47.906108));
+        decodedPath.add(new LatLng(-15.826429, -47.906678));
+        decodedPath.add(new LatLng(-15.825987, -47.907060));
+        decodedPath.add(new LatLng(-15.825759, -47.907017));
+        decodedPath.add(new LatLng(-15.824562, -47.905391));
+        decodedPath.add(new LatLng(-15.824175, -47.904721));
+        decodedPath.add(new LatLng(-15.823803, -47.904565));
+        decodedPath.add(new LatLng(-15.823375, -47.904898));
+
+        mMap.addPolyline(new PolylineOptions().addAll(decodedPath).color(Color.GRAY));
+
+
+        LatLng bigbox = new LatLng(-15.827190, -47.906108);
+        LatLng iesbSul = new LatLng(-15.8318566 ,-47.9109529);
+        LatLng mercado2 = new LatLng(-15.823375, -47.904898);
+
         mMap.addMarker(new MarkerOptions().position(iesbSul).title("IESB Sul"));
+        mMap.addMarker(new MarkerOptions().position(bigbox).title("Big Box"));
+        mMap.addMarker(new MarkerOptions().position(mercado2).title("Big Box"));
+
+
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(iesbSul, 15));
-        */
 
 
     }

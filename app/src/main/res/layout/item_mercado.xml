@@ -55,23 +55,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <TextView
-                    android:id="@+id/txtDistanciaFixa"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="1dp"
-                    android:text="Distancia "
-                    android:textColor="#1F2D3D" />
-
-
-                <TextView
-                    android:id="@+id/txtDistancia"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="1dp"
-                    android:text="100 "
-                    android:textAlignment="viewEnd"
-                    android:textColor="#1F2D3D" />
 
             </RelativeLayout>
         </LinearLayout>
