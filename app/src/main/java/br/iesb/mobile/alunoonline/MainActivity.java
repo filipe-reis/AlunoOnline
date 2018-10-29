@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, RecuperarSenha.class);
+                intent.putExtra("todosProdutos", (Serializable) todosProdutos);
                 startActivity(intent);
             }
         });
@@ -76,6 +77,7 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, Cadastro.class);
+                intent.putExtra("todosProdutos", (Serializable) todosProdutos);
                 startActivity(intent);
             }
         });

@@ -235,9 +235,7 @@ public class ListaListas extends AppCompatActivity implements ProdutoRecyclerCli
         if (res_id == R.id.icon_sort_compra){
             ordenarPreco();
             Toast.makeText(this, "Ordena por Preco", Toast.LENGTH_SHORT).show();
-        }else if (res_id == R.id.action_search){
         }
-
         return super.onOptionsItemSelected(item);
     }
 

@@ -15,6 +15,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+import br.iesb.mobile.alunoonline.Model.Produto;
+
 public class Cadastro extends AppCompatActivity {
 
     private TextView login;
@@ -22,10 +28,16 @@ public class Cadastro extends AppCompatActivity {
     private Button btnRegistrar;
     private Usuario usuario;
 
+    private List<Produto> todosProdutos= new ArrayList<>();
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cadastro);
+
+        Intent it = getIntent();
+        todosProdutos = (ArrayList) it.getSerializableExtra("todosProdutos");
 
         editNome        = findViewById( R.id.editNome       );
         editSobrenome   = findViewById( R.id.editSobrenome  );
@@ -78,7 +90,9 @@ public class Cadastro extends AppCompatActivity {
                     usuario = new Usuario();
                     usuario.setEmail(editEmailCad.getText().toString());
                     Intent intent = new Intent(Cadastro.this, ListaListas.class);
+                    intent.putExtra("todosProdutos", (Serializable) todosProdutos);
                     startActivity(intent);
+                    finish();
                 }else{
                     Toast.makeText(Cadastro.this, "Cadastro inválido!", Toast.LENGTH_LONG).show();
                 }
