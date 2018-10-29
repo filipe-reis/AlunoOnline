@@ -1,30 +1,17 @@
 package br.iesb.mobile.alunoonline;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
-import android.support.v7.widget.Toolbar;
 
-import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,22 +19,16 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import br.iesb.mobile.alunoonline.Model.Lista;
 import br.iesb.mobile.alunoonline.Model.Mercado;
-import br.iesb.mobile.alunoonline.Model.Parametros;
+import br.iesb.mobile.alunoonline.Model.Produto;
 import br.iesb.mobile.alunoonline.Model.Produtos;
 import br.iesb.mobile.alunoonline.fragments.FragmentAdapter;
-import br.iesb.mobile.alunoonline.fragments.FragmentListaCompras;
 import br.iesb.mobile.alunoonline.fragments.FragmentListaMercados;
-import br.iesb.mobile.alunoonline.fragments.PassadorDeInformacao;
 import br.iesb.mobile.alunoonline.util.UtlListeCompre;
 
-public class ListaCompras extends AppCompatActivity {
+public class ListaCompras extends AppCompatActivity{
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -56,7 +37,8 @@ public class ListaCompras extends AppCompatActivity {
     private Toolbar toolbar;
     private DatabaseReference comprasRef;
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
-    private ArrayList<Produtos> listaCompras = new ArrayList<>();
+    private ArrayList<Produto> listaCompras = new ArrayList<>();
+    private ArrayList<Produto> todosProdutos= new ArrayList<>();
     private List<Mercado> listaMercados = new ArrayList<>();
     private DatabaseReference listaCompraReference, ref;
     private double precoTotal;
@@ -64,7 +46,8 @@ public class ListaCompras extends AppCompatActivity {
     public ArrayList<Produtos> produtosMercado = new ArrayList<>();
     public double precoTotalLista = 0.0, arredondado = 0.0;
     private FragmentListaMercados fragmentListaMercados = new FragmentListaMercados();
-
+    private FirebaseAuth firebaseAuth;
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,10 +56,13 @@ public class ListaCompras extends AppCompatActivity {
 
         Intent it = getIntent();
         nome_lista = it.getStringExtra("nome");
+        todosProdutos = (ArrayList) it.getSerializableExtra("todosProdutos");
 
-        comprasRef = database.getReference().child("/Parametros");
 
-        setLista();
+        userId = firebaseAuth.getInstance().getUid();
+        comprasRef = database.getReference().child("/" + userId);
+
+//        setLista();
         getListaCompras();
 
         tabLayout = findViewById(R.id.tabLayout);
@@ -85,8 +71,6 @@ public class ListaCompras extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         conciliarProdutosComListadeCompras();
-
-
     }
 
     @Override
@@ -152,18 +136,14 @@ public class ListaCompras extends AppCompatActivity {
         return precoTotal;
     }
 
-    public void setLista() {
 
-        Map<String, Parametros> param = new HashMap<>();
-        param.put("Lista", new Parametros(nome_lista));
-
-        comprasRef.setValue(param);
-    }
-
+    /**
+     * Consulta lista da base NoSql para escrever na tela
+     */
     private void getListaCompras() {
         try {
             database = FirebaseDatabase.getInstance();
-            listaCompraReference = database.getReference().child("/Compras/"+nome_lista);
+            listaCompraReference = database.getReference().child("/" + userId + "/" + nome_lista + "/Produtos");
         } catch (Exception e) {
             System.out.print("ERRO - " + e.getMessage());
         }
@@ -171,28 +151,41 @@ public class ListaCompras extends AppCompatActivity {
         listaCompraReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                listaCompras.clear();
 
                 for (DataSnapshot c : dataSnapshot.getChildren()) {
-                    Produtos produto = new Produtos();
+                    Produto produto = new Produto();
                     try {
-                        produto.setDesc(c.child("Descricao").getValue().toString());
-                        produto.setNome(c.child("Produto").getValue().toString());
-                        produto.setMarca(c.child("Marca").getValue().toString());
+                        produto.setNome      (c.child("Produto"   ).getValue().toString());
+                        produto.setDescricao (c.child("Descricao" ).getValue().toString());
                         produto.setPreco(Double.parseDouble(c.child("Preco")
                                 .getValue().toString().replace(',', '.')));
+
+                        produto.setSku           (c.child("Sku"      ).getValue().toString());
+                        produto.setSku_id        (c.child("Sku_Id"   ).getValue().toString());
+                        produto.setSku_descricao (c.child("Sku_Desc" ).getValue().toString());
+
+                        produto.setCategoria_nome (c.child("Categoria" ).getValue().toString());
+                        produto.setCategoria_id   (c.child("Categoria_Id").getValue().toString());
+
+                        produto.setMercado_nome (c.child("Mercado")    .getValue().toString());
+                        produto.setMercado_id   (c.child("Mercado_Id") .getValue().toString());
+                        produto.setQtd(Integer.parseInt(c.child("Quantidade").getValue().toString()));
+
+                        listaCompras.add(produto);
 
                     } catch (Exception e) {
                         System.out.println("ERRO Recuperando produto: " + e.getMessage());
                         e.printStackTrace();
                     }
 
-                    if (c.hasChild("Produto")) {
-                        listaCompras.add(produto);
-                        calculaPrecoTotalLista(produto.getPreco());
-                    }
+
                 }
-                arredondarPreco();
-                fragmentAdapter = new FragmentAdapter(getSupportFragmentManager(), getResources().getStringArray(R.array.titulo_tabs_lista_compras), nome_lista, listaCompras, arredondado);
+
+                Log.i("Lista Compras", "Tamanho lista: " + listaCompras.size());
+
+
+                fragmentAdapter = new FragmentAdapter(getSupportFragmentManager(), getResources().getStringArray(R.array.titulo_tabs_lista_compras), nome_lista, listaCompras, 0.0, todosProdutos);
                 viewPager.setAdapter(fragmentAdapter);
                 tabLayout.setupWithViewPager(viewPager);
 

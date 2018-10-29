@@ -43,6 +43,8 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
+
+        <!--
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -50,6 +52,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        -->
+
+
+        <!-- Splash screen -->
+        <activity android:name=".SplashScreen">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".MainActivity" />
         <activity android:name=".RecuperarSenha" />
         <activity android:name=".Cadastro" />
         <activity android:name=".Perfil" />
@@ -59,6 +73,7 @@
         <activity
             android:name=".ListaListas"
             android:theme="@style/Theme.MyTheme" />
+        <activity android:name=".DetalheMercado"></activity>
     </application>
 
 </manifest>

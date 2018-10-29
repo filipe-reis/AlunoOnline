@@ -20,28 +20,19 @@ public class Cadastro extends AppCompatActivity {
     private TextView login;
     private EditText editNome, editSobrenome, editSenhaCad, editEmailCad, editTelefone;
     private Button btnRegistrar;
+    private Usuario usuario;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cadastro);
 
-        login           = findViewById( R.id.textFazerLogin );
         editNome        = findViewById( R.id.editNome       );
         editSobrenome   = findViewById( R.id.editSobrenome  );
         editSenhaCad    = findViewById( R.id.editSenhaCad   );
         editEmailCad    = findViewById( R.id.editEmailCad   );
         editTelefone    = findViewById( R.id.editTelefone   );
         btnRegistrar    = findViewById( R.id.btnRegistrar   );
-
-        //Volta para tela de login
-        login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Cadastro.this, MainActivity.class);
-                startActivity(intent);
-            }
-        });
 
         //Cadastra novo usuario
         btnRegistrar.setOnClickListener(new View.OnClickListener() {
@@ -84,6 +75,8 @@ public class Cadastro extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(processo.isSuccessful()){
+                    usuario = new Usuario();
+                    usuario.setEmail(editEmailCad.getText().toString());
                     Intent intent = new Intent(Cadastro.this, ListaListas.class);
                     startActivity(intent);
                 }else{

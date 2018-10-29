@@ -1,20 +1,20 @@
 package br.iesb.mobile.alunoonline;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import br.iesb.mobile.alunoonline.Model.Produto;
-import br.iesb.mobile.alunoonline.Model.Produtos;
 
 /**
  * Created by Filipe Reis on 29/04/2018.
@@ -22,34 +22,47 @@ import br.iesb.mobile.alunoonline.Model.Produtos;
 
 public class ProdutosRecyclerViewAdapter extends RecyclerView.Adapter<ProdutosRecyclerViewAdapter.ProdutoViewHolder> {
 
+
     private Context context;
     private List<Produto> listaProdutos;
+    private List<Produto> todosProdutos;
     private ProdutoRecyclerClickListener produtoRecyclerClickListener;
-    FirebaseDatabase database;
+    int countItem = 1;
+
     String nome_lista;
-    int contItem = 1;
+    FirebaseAuth firebaseAuth;
+    String userId;
+    List<Produto> auxListaCompras = new ArrayList<>();
+    Produto produto;
 
 
-    public ProdutosRecyclerViewAdapter(Context context, List<Produto> listaProdutos, String nome_lista) {
+
+    public ProdutosRecyclerViewAdapter(Context context, List<Produto> listaProdutos, String nome_lista, List<Produto> todosProdutos) {
         this.context = context;
         this.listaProdutos = listaProdutos;
         this.nome_lista = nome_lista;
+        this.userId = this.firebaseAuth.getInstance().getUid();
+        this.todosProdutos = todosProdutos;
     }
 
 
     @Override
     public ProdutoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_lista_produtos, parent, false);
+
+
         return new ProdutoViewHolder(view);
     }
 
 
     @Override
     public void onBindViewHolder(ProdutoViewHolder holder, int position) {
-        Produto produto = listaProdutos.get(position);
+        produto = listaProdutos.get(position);
 
         holder.nome.setText(produto.getNome());
-        holder.preco.setText(String.valueOf(produto.getPreco()));
+        holder.desc.setText(String.valueOf(produto.getDescricao()));
+
+        holder.qtdProduto.setText(String.valueOf(produto.getQtd()));
 
         holder.produto = produto;
     }
@@ -61,53 +74,87 @@ public class ProdutosRecyclerViewAdapter extends RecyclerView.Adapter<ProdutosRe
         produtoRecyclerClickListener = r;
     }
 
-    public void addListItem(Produtos prod, int position){
-        notifyItemInserted(position);
-    }
-
 
     /**
      * Inner class View Holder
      * Maps the elements of the list
      */
 
-    public class ProdutoViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class ProdutoViewHolder extends RecyclerView.ViewHolder{
 
-        public TextView nome, preco;
+        public TextView nome, desc, qtdProduto;
+        ImageView adicionaProduto, excluiProduto;
         public Produto produto;
 
-        public ProdutoViewHolder(View itemView) {
+        public ProdutoViewHolder(final View itemView) {
             super(itemView);
             nome = itemView.findViewById(R.id.nome_produto);
-            //preco = itemView.findViewById(R.id.preco);
+            desc = itemView.findViewById(R.id.desc);
+            qtdProduto = itemView.findViewById(R.id.qtdProduto);
+            adicionaProduto = itemView.findViewById(R.id.adicionaElemento);
+            excluiProduto   = itemView.findViewById(R.id.excluiProduto);
+
+            adicionaProduto.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    v.startAnimation(AnimationUtils.loadAnimation(itemView.getContext(), R.anim.image_click));
+                    adicionaProduto(v);
+                    notifyDataSetChanged();
+                }
+            });
+
+            excluiProduto.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    v.startAnimation(AnimationUtils.loadAnimation(itemView.getContext(), R.anim.image_click));
+                    excluiProduto(v);
+                    notifyDataSetChanged();
+                }
+            });
 
             RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) itemView.getLayoutParams();
             params.setMargins(20, 0, 0, 0);
             itemView.setLayoutParams(params);
 
-            itemView.setOnClickListener(this);
+//            itemView.setOnClickListener(this);
         }
 
-        @Override
-        public void onClick(View v) {
+        public void adicionaProduto(View v){
+
+            boolean temIgual = false;
+
             if(produtoRecyclerClickListener != null){
 
-                database = FirebaseDatabase.getInstance();
-                DatabaseReference compra = database.getReference("/Compras");
+                if(!auxListaCompras.isEmpty()){
 
-                //Pegar e criar um no pra ele
-                //Setar o nome da lista na child
-                compra.child(nome_lista).child(String.valueOf(contItem)).child("Produto")  .setValue(produto.getNome ().toString());
-                compra.child(nome_lista).child(String.valueOf(contItem)).child("Preco")    .setValue(String.valueOf(produto.getPreco()));
-                compra.child(nome_lista).child(String.valueOf(contItem)).child("Descricao").setValue(produto.getDescricao ().toString());
+                     for (int i = 0; i < auxListaCompras.size(); i++) {
+                         if(produto.getNome().equals(auxListaCompras.get(i).getNome())){
+                             temIgual = true;
+                             auxListaCompras.get(i).setQtd(auxListaCompras.get(i).getQtd() + 1);
+                             produto.setQtd(auxListaCompras.get(i).getQtd());
+                         }
+                     }
+                }
 
-                contItem++;
+                if (!temIgual){
+                    produto.setQtd(1);
+                    auxListaCompras.add(produto);
+                }
 
-                //Iniciando Activity da lista de Compras
-                Intent it = new Intent(v.getContext(), ListaCompras.class);
-                it.putExtra("nome", nome_lista);
-                context.startActivity(it);
+            }
+        }
 
+        public void excluiProduto(View v){
+
+            for(int i = 0; i < auxListaCompras.size(); i++){
+                if (auxListaCompras.get(i).equals(produto)){
+                    auxListaCompras.get(i).setQtd(auxListaCompras.get(i).getQtd() - 1);
+                    produto.setQtd(auxListaCompras.get(i).getQtd());
+
+                    if(auxListaCompras.get(i).getQtd() == 0){
+                        auxListaCompras.remove(i);
+                    }
+                }
             }
         }
     }

@@ -17,8 +17,8 @@ public class DistanciaMercados {
 
     public List<String> calculaMercadoMaisProximoDaLocalizacaoAtual(List<MercadoAPI> listaMercados, LatLng localizacaoAtual) {
 
-        double latitude = -15.649996;
-        double longitude = -47.7982585;
+        double latitude = localizacaoAtual.latitude;
+        double longitude = localizacaoAtual.longitude;
 
         List<Vertice> vizinhos = new ArrayList<Vertice>();
         List<Vertice> listaVertices = new ArrayList<Vertice>();

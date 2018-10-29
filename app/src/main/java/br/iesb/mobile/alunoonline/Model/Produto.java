@@ -1,6 +1,8 @@
 package br.iesb.mobile.alunoonline.Model;
 
-public class Produto {
+import java.io.Serializable;
+
+public class Produto implements Serializable{
 
     // Produto
     private String produto_id;
@@ -29,6 +31,18 @@ public class Produto {
     private String mercado_nome;
     private String mercado_descricao;
     private String cnpj;
+    private double latitude;
+    private double longitude;
+
+    private int qtd;
+
+    public int getQtd() {
+        return qtd;
+    }
+
+    public void setQtd(int qtd) {
+        this.qtd = qtd;
+    }
 
     public String getProduto_id() {
         return produto_id;
@@ -188,5 +202,21 @@ public class Produto {
 
     public void setCnpj(String cnpj) {
         this.cnpj = cnpj;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 }

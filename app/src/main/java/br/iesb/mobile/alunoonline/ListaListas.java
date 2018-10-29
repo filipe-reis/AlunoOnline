@@ -1,12 +1,10 @@
 package br.iesb.mobile.alunoonline;
 
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -14,22 +12,24 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +45,15 @@ public class ListaListas extends AppCompatActivity implements ProdutoRecyclerCli
     private DatabaseReference comprasRef;
     FloatingActionButton fab;
     private EditText nome_lista_dialog;
-    private UtlListeCompre utl;
+    private UtlListeCompre utlListeCompre;
+    private FirebaseAuth firebaseAuth;
+    private String userId;
+    private ActionBar actionBar;
+
+    Lista[] vetorListas;
+
+    private List<Produto> todosProdutos= new ArrayList<>();
+
 
     public List<Lista> listas = new ArrayList<>();
     Toolbar toolbar;
@@ -57,8 +65,24 @@ public class ListaListas extends AppCompatActivity implements ProdutoRecyclerCli
         toolbar = findViewById(R.id.toolbarListas);
         setSupportActionBar(toolbar);
 
-        comprasRef = database.getReference().child("/Compras");
+        utlListeCompre = new UtlListeCompre();
+
+        Intent it = getIntent();
+        todosProdutos = (ArrayList) it.getSerializableExtra("todosProdutos");
+
+        //Recuperando id do usuario logado
+        firebaseAuth = FirebaseAuth.getInstance();
+        userId = firebaseAuth.getCurrentUser().getUid();
+
+        comprasRef = database.getReference().child("/" + userId);
         nome_lista_dialog = new EditText(this);
+        InputFilter[] filterArray = new InputFilter[1];
+        filterArray[0] = new InputFilter.LengthFilter(25);
+        nome_lista_dialog.setFilters(filterArray);
+
+        nome_lista_dialog.setMaxWidth(25);
+
+
         /**
          * Layout para o edit Text da caixa de dialogo
          */
@@ -67,16 +91,10 @@ public class ListaListas extends AppCompatActivity implements ProdutoRecyclerCli
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         nome_lista_dialog.setLayoutParams(lp);
 
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Adicionar lista", Snackbar.LENGTH_SHORT)
-                        .setAction("Action", null).show();
-            }
-        });
+        fab = findViewById(R.id.fab);
 
-        recyclerViewAdapter = new ListaAdapter(ListaListas.this, listas);
+
+        recyclerViewAdapter = new ListaAdapter(ListaListas.this, listas, todosProdutos);
         recyclerView = findViewById(R.id.ListasRecyclerView);
         recyclerViewAdapter.setRecyclerViewOnclickListener(this);
         recyclerView.setAdapter(recyclerViewAdapter);
@@ -92,7 +110,7 @@ public class ListaListas extends AppCompatActivity implements ProdutoRecyclerCli
             @Override
             public void onClick(View view) {
                 new AlertDialog.Builder(ListaListas.this)
-                        .setTitle("Criar nova lista")
+                        .setTitle("Dê um nome para sua lista.")
                         .setView(nome_lista_dialog)
                         .setPositiveButton("Criar", new DialogInterface.OnClickListener() {
                             @Override
@@ -101,12 +119,16 @@ public class ListaListas extends AppCompatActivity implements ProdutoRecyclerCli
                                     //tratar erro de nome vazio
                                     Toast.makeText(ListaListas.this, "Insira um nome para a lista", Toast.LENGTH_SHORT).show();
                                 } else {
+
+                                    // Cria lista no path do usuario
                                     comprasRef.child(nome_lista_dialog.getText().toString()).child("Nome_Lista")
                                             .setValue(nome_lista_dialog.getText().toString());
 
-                                    Toast.makeText(ListaListas.this, "Lista " + nome_lista_dialog.getText().toString() + " Criada.", Toast.LENGTH_SHORT).show();
+
+                                    Toast.makeText(ListaListas.this, "Lista: " + nome_lista_dialog.getText().toString() + " criada.", Toast.LENGTH_SHORT).show();
                                     Intent it = new Intent(ListaListas.this, ListaProdutos.class);
                                     it.putExtra("nome", nome_lista_dialog.getText().toString());
+                                    it.putExtra("todosProdutos", (Serializable) todosProdutos);
                                     startActivity(it);
                                 }
                             }
@@ -126,6 +148,10 @@ public class ListaListas extends AppCompatActivity implements ProdutoRecyclerCli
                 for(DataSnapshot c : dataSnapshot.getChildren()){
                     Lista lista = new Lista();
                     lista.setNome(c.getKey().toString());
+
+                    if (c.hasChild("Preço")){
+                        lista.setPreco(Double.parseDouble(c.child("Preço").getValue().toString()));
+                    }
                     listas.add(lista);
                 }
                 recyclerViewAdapter.notifyDataSetChanged();
@@ -138,48 +164,102 @@ public class ListaListas extends AppCompatActivity implements ProdutoRecyclerCli
 
             }
         });
-
-//        DatabaseReference db = FirebaseDatabase.getInstance().getReference("/Parametros");
-//        db.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                for (DataSnapshot c :  dataSnapshot.getChildren()){
-//                    Lista l= new Lista();
-//                    l.setPreco(Double.parseDouble(c.child("valorTotalLista").getValue().toString()));
-//                    l.setNome(c.child("nome_lista").getValue().toString());
-//                    listas.add(l);
-//                }
-//                recyclerViewAdapter.notifyDataSetChanged();
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
     }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new AlertDialog.Builder(ListaListas.this)
+                        .setTitle("Dê um nome para sua lista.")
+                        .setView(nome_lista_dialog)
+                        .setPositiveButton("Criar", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                if (nome_lista_dialog.toString().isEmpty()) {
+                                    //tratar erro de nome vazio
+                                    Toast.makeText(ListaListas.this, "Insira um nome para a lista", Toast.LENGTH_SHORT).show();
+                                } else {
+
+                                    // Cria lista no path do usuario
+                                    comprasRef.child(nome_lista_dialog.getText().toString()).child("Nome_Lista")
+                                            .setValue(nome_lista_dialog.getText().toString());
+
+
+                                    Toast.makeText(ListaListas.this, "Lista: " + nome_lista_dialog.getText().toString() + " criada.", Toast.LENGTH_SHORT).show();
+                                    Intent it = new Intent(ListaListas.this, ListaProdutos.class);
+                                    it.putExtra("nome", nome_lista_dialog.getText().toString());
+                                    it.putExtra("todosProdutos", (Serializable) todosProdutos);
+                                    startActivity(it);
+                                }
+                            }
+                        })
+                        .setNegativeButton("Cancelar", null)
+                        .show();
+            }
+        });
+    }
 
 
     /***************** Icones Tool Bar ********************/
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.tab_lista_listas, menu);
+        menuInflater.inflate(R.menu.toolbar_lista_listas, menu);
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-//        int res_id = item.getItemId();
-//        if(res_id == R.id.icon_more_info_lista){
-//            Toast.makeText(getApplicationContext(), "Icon de Info", Toast.LENGTH_SHORT).show();
-//        }else if (res_id == R.id.icon_sort_lista){
-//            Toast.makeText(getApplicationContext(), "Icon de Ordenação", Toast.LENGTH_SHORT).show();
-//        }else{
-//            Toast.makeText(getApplicationContext(), "Icone nao mapeado aqui", Toast.LENGTH_SHORT).show();
-//        }
-//
+
+        int res_id = item.getItemId();
+
+        // Define the listener
+        MenuItem.OnActionExpandListener expandListener = new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                // Do something when action item collapses
+                return true;  // Return true to collapse action view
+            }
+
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                // Do something when expanded
+                return true;  // Return true to expand action view
+            }
+        };
+
+        if (res_id == R.id.icon_sort_compra){
+            ordenarPreco();
+            Toast.makeText(this, "Ordena por Preco", Toast.LENGTH_SHORT).show();
+        }else if (res_id == R.id.action_search){
+        }
+
         return super.onOptionsItemSelected(item);
+    }
+
+    public void ordenarPreco(){
+        vetorListas = new Lista[listas.size()];
+        vetorListas = listas.toArray(vetorListas);
+        listas = (List<Lista>) utlListeCompre.ordenarListaListas(vetorListas, 0, listas.size() - 1);
+        configuraRecyclerView(listas);
+    }
+
+
+    private void configuraRecyclerView(List<Lista> listaRV){
+
+        recyclerViewAdapter = new ListaAdapter(ListaListas.this, listaRV, todosProdutos);
+        recyclerView = findViewById(R.id.ListasRecyclerView);
+        recyclerViewAdapter.setRecyclerViewOnclickListener(this);
+        recyclerView.setAdapter(recyclerViewAdapter);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        //Divide os itens da lista
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
 
     @Override

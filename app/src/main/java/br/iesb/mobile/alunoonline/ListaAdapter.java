@@ -10,24 +10,26 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import br.iesb.mobile.alunoonline.Model.Lista;
-import br.iesb.mobile.alunoonline.Model.ListadasListas;
+import br.iesb.mobile.alunoonline.Model.Produto;
 
 public class ListaAdapter extends RecyclerView.Adapter<ListaAdapter.ListaViewHolder>{
     private Context context;
     private List<Lista> lista;
     private ProdutoRecyclerClickListener listaRecyclerClickListener;
     private ListaCompras listaCompras = new ListaCompras();
+    private List<Produto> todosProdutos= new ArrayList<>();
 
 
-    public ListaAdapter(Context context, List<Lista> lista) {
+
+    public ListaAdapter(Context context, List<Lista> lista, List<Produto> todosProdutos) {
         this.context = context;
         this.lista = lista;
+        this.todosProdutos = todosProdutos;
     }
 
     @NonNull
@@ -42,7 +44,8 @@ public class ListaAdapter extends RecyclerView.Adapter<ListaAdapter.ListaViewHol
         Lista listas = lista.get(position);
 
         holder.textNomeLista.setText(listas.getNome());
-        holder.textPrecoLista.setText(""); //Pegar preço final da lista
+
+        holder.precoLista.setText(String.valueOf(listas.getPreco()).replace(".", ","));
 
         holder.listas = listas;
     }
@@ -58,13 +61,13 @@ public class ListaAdapter extends RecyclerView.Adapter<ListaAdapter.ListaViewHol
 
     public class ListaViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        public TextView textNomeLista, textPrecoLista;
+        public TextView textNomeLista, precoLista;
         Lista listas;
 
         public ListaViewHolder(View itemView) {
             super(itemView);
             textNomeLista = itemView.findViewById(R.id.textNomeLista);
-            textPrecoLista = itemView.findViewById(R.id.textPrecoLista);
+            precoLista = itemView.findViewById(R.id.precoLista);
 
             RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) itemView.getLayoutParams();
             params.setMargins(0, 0, 0, 0);
@@ -79,9 +82,9 @@ public class ListaAdapter extends RecyclerView.Adapter<ListaAdapter.ListaViewHol
 
                 Intent it = new Intent(view.getContext(), ListaCompras.class);
                 it.putExtra("nome", textNomeLista.getText());
+                it.putExtra("todosProdutos", (Serializable) todosProdutos);
                 context.startActivity(it);
-
-            }else{
+                }else{
                 Toast.makeText(view.getContext(), "Erro ao buscar Lista", Toast.LENGTH_SHORT).show();
 
             }

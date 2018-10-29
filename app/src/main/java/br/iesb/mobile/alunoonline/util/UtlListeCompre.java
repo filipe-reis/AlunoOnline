@@ -2,12 +2,6 @@ package br.iesb.mobile.alunoonline.util;
 
 import android.util.Log;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,37 +13,17 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
-import br.iesb.mobile.alunoonline.ListaCompras;
+import br.iesb.mobile.alunoonline.Model.Lista;
+import br.iesb.mobile.alunoonline.Model.MercadoAPI;
 import br.iesb.mobile.alunoonline.Model.Produto;
 import br.iesb.mobile.alunoonline.Model.Produtos;
 
 public class UtlListeCompre {
 
-    private double precoTotalLista;
-
-    public double getPrecoTotalLista() {
-        return precoTotalLista;
-    }
-
-    public void setPrecoTotalLista(double precoTotalLista) {
-        this.precoTotalLista = precoTotalLista;
-    }
-
-    public double getArredondado() {
-        return arredondado;
-    }
-
-    public void setArredondado(double arredondado) {
-        this.arredondado = arredondado;
-    }
-
-    private double arredondado;
     public UtlListeCompre(){};
 
     /**
@@ -59,7 +33,7 @@ public class UtlListeCompre {
      * @param fim posicao final
      * @return vetor ordenado pelo preco
      */
-    public Object ordenarListaPreco(Produtos[] prod, int inicio, int fim) {
+    public Object ordenarListaPreco(Produto[] prod, int inicio, int fim) {
 
             if (inicio < fim) {
                 int posicaoPivo = separarPorPreco(prod, inicio, fim);
@@ -69,9 +43,9 @@ public class UtlListeCompre {
             return Arrays.asList(prod);
     }
 
-    private static int separarPorPreco(Produtos[] vetor, int inicio, int fim) {
+    private static int separarPorPreco(Produto[] vetor, int inicio, int fim) {
 
-        Produtos aux = vetor[inicio]; //Variavel utilizada na ultima parte do algoritmo para
+        Produto aux = vetor[inicio]; //Variavel utilizada na ultima parte do algoritmo para
         // setar valor final do vetor
         double pivo = vetor[inicio].getPreco();
         int i = inicio + 1, f = fim;
@@ -81,7 +55,93 @@ public class UtlListeCompre {
             else if (pivo < vetor[f].getPreco())
                 f--;
             else {
-                Produtos troca = vetor[i];
+                Produto troca = vetor[i];
+                vetor[i] = vetor[f];
+                vetor[f] = troca;
+                i++;
+                f--;
+            }
+        }
+        vetor[inicio] = vetor[f];
+        vetor[f] = aux;
+        return f;
+    }
+
+
+    /**
+     * Faz ordenação da lista de mercados pelo preço.
+     * Algoritmo utilizado: QuickSort
+     * @param mercado Array de mercados a ser ordenados
+     * @param inicio posicao inical do array
+     * @param fim posicao final do array
+     * @return lista de mercados ordenados por preco
+     */
+    public Object ordenarListaDeMercadoPreco(MercadoAPI[] mercado, int inicio, int fim) {
+
+        if (inicio < fim) {
+            int posicaoPivo = separarMercadosPorPreco(mercado, inicio, fim);
+            ordenarListaDeMercadoPreco(mercado, inicio, posicaoPivo - 1);
+            ordenarListaDeMercadoPreco(mercado, posicaoPivo + 1, fim);
+        }
+        return Arrays.asList(mercado);
+    }
+
+    private static int separarMercadosPorPreco(MercadoAPI[] vetor, int inicio, int fim) {
+
+        MercadoAPI aux = vetor[inicio]; //Variavel utilizada na ultima parte do algoritmo para
+        // setar valor final do vetor
+        double pivo = vetor[inicio].getPreco();
+        int i = inicio + 1, f = fim;
+        while (i <= f) {
+            if (vetor[i].getPreco() <= pivo)
+                i++;
+            else if (pivo < vetor[f].getPreco())
+                f--;
+            else {
+                MercadoAPI troca = vetor[i];
+                vetor[i] = vetor[f];
+                vetor[f] = troca;
+                i++;
+                f--;
+            }
+        }
+        vetor[inicio] = vetor[f];
+        vetor[f] = aux;
+        return f;
+    }
+
+
+
+    /**
+     * Faz ordenação por preco da LISTA utilizando o algoritmo quicksort
+     * @param prod vetor a ser ordenado
+     * @param inicio posicao inicial
+     * @param fim posicao final
+     * @return vetor ordenado pelo preco
+     */
+    public Object ordenarListaListas(Lista[] prod, int inicio, int fim) {
+
+        if (inicio < fim) {
+            int posicaoPivo = separarPorPreco(prod, inicio, fim);
+            ordenarListaListas(prod, inicio, posicaoPivo - 1);
+            ordenarListaListas(prod, posicaoPivo + 1, fim);
+        }
+        return Arrays.asList(prod);
+    }
+
+    private static int separarPorPreco(Lista[] vetor, int inicio, int fim) {
+
+        Lista aux = vetor[inicio]; //Variavel utilizada na ultima parte do algoritmo para
+        // setar valor final do vetor
+        double pivo = vetor[inicio].getPreco();
+        int i = inicio + 1, f = fim;
+        while (i <= f) {
+            if (vetor[i].getPreco() <= pivo)
+                i++;
+            else if (pivo < vetor[f].getPreco())
+                f--;
+            else {
+                Lista troca = vetor[i];
                 vetor[i] = vetor[f];
                 vetor[f] = troca;
                 i++;
@@ -101,7 +161,7 @@ public class UtlListeCompre {
      * @param fim posicao final
      * @return vetor ordenado pelo preco
      */
-    public Object ordenarListaNome(Produtos[] prod, int inicio, int fim) {
+    public Object ordenarListaNome(Produto[] prod, int inicio, int fim) {
 
         if (inicio < fim) {
             int posicaoPivo = separarPorNome(prod, inicio, fim);
@@ -111,9 +171,9 @@ public class UtlListeCompre {
         return Arrays.asList(prod);
     }
 
-    private static int separarPorNome(Produtos[] vetor, int inicio, int fim) {
+    private static int separarPorNome(Produto[] vetor, int inicio, int fim) {
 
-        Produtos aux = vetor[inicio]; //Variavel utilizada na ultima parte do algoritmo para
+        Produto aux = vetor[inicio]; //Variavel utilizada na ultima parte do algoritmo para
         // setar valor final do vetor
         String pivo = vetor[inicio].getNome();
         int i = inicio + 1, f = fim;
@@ -123,7 +183,7 @@ public class UtlListeCompre {
             else if (vetor[f].getNome().compareTo(pivo) > 0 )
                 f--;
             else {
-                Produtos troca = vetor[i];
+                Produto troca = vetor[i];
                 vetor[i] = vetor[f];
                 vetor[f] = troca;
                 i++;
@@ -158,6 +218,11 @@ public class UtlListeCompre {
         return listaConciliada;
     }
 
+
+
+    /////////////////////////////////////////////////////
+    // Métodos para recuperação das informações da API //
+    /////////////////////////////////////////////////////
 
     public List<Produto> getInformacao(String end){
         String json;
@@ -208,7 +273,8 @@ public class UtlListeCompre {
                 produto.setMercado_nome      (mercado.getString("nome"       ));
                 produto.setMercado_descricao (mercado.getString("descricao"  ));
                 produto.setCnpj              (mercado.getString("cnpj"       ));
-
+                produto.setLatitude          (mercado.getDouble("latitude"   ));
+                produto.setLongitude         (mercado.getDouble("longitude"  ));
 
                 //Adicionando na lista
                 produtos.add(produto);
@@ -265,7 +331,6 @@ public class UtlListeCompre {
         return retorno;
     }
 
-
     /**
      * Converte o InputStream recebido para string que conterá o JSON completo
      * @param is
@@ -291,9 +356,4 @@ public class UtlListeCompre {
 
         return buffer.toString();
     }
-
-
-
-
-
 }

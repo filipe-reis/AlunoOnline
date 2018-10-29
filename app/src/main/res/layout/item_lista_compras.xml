@@ -10,7 +10,7 @@
     <TextView
         android:id="@+id/nome_produto"
         android:layout_width="293dp"
-        android:layout_height="27dp"
+        android:layout_height="33dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginBottom="16dp"
@@ -50,47 +50,18 @@
         app:layout_constraintVertical_bias="0.9"
         tools:ignore="MissingConstraints" />
 
-    <ImageView
-        android:id="@+id/adicionaElemento"
-        android:layout_width="19dp"
-        android:layout_height="19dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/excluiProduto"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.514"
-        app:srcCompat="@drawable/plus" />
-
     <TextView
-        android:id="@+id/qtdProduto"
+        android:id="@+id/qtdProdutoListaCompras"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="132dp"
         android:layout_marginTop="8dp"
         android:text=""
         android:textSize="19sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/adicionaElemento"
-        app:layout_constraintHorizontal_bias="0.92"
         app:layout_constraintStart_toEndOf="@+id/nome_produto"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/excluiProduto"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.516"
-        app:srcCompat="@drawable/unchecked" />
 
 
 </android.support.constraint.ConstraintLayout>
